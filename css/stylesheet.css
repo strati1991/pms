@@ -1,0 +1,39 @@
+/* 
+    Document   : stylesheet.css
+    Created on : 18.06.2013, 15:22:12
+    Author     : heidelmann
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+#menu {
+    display: none;
+    width: 102px;
+    height: 28px;
+    padding:30px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
+    background-color:#3b5998; 
+}
+#menu span{
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-top: 0;
+    margin-top: 0;
+}
+#admin_panel{
+    background-color:#fffefe;
+    width:100px;
+    height:50px;
+    display:none;
+}
+
+
