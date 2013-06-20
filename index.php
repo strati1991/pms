@@ -1,9 +1,16 @@
 <?php
-ini_set('display_errors', 'On');
-error_reporting(E_ALL | E_STRICT);
 session_start();
-require_once("backend/facebook.php");
 require_once("backend/database.php");
+require_once("backend/facebook.php");
+ini_set('display_errors', 'On');
+error_reporting(E_all || E_STRICT);
+$action = $_GET['action'];
+if($action == "logout"){
+    $facebook->destroySession();
+    session_destroy();
+    header('Location: http://pms.social-media-hosting.com/');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -12,13 +19,17 @@ require_once("backend/database.php");
 <!--[if gt IE 8]><!--> <html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js"> <!--<![endif]-->
     <head>
         <title>PMS</title>
+        <meta charset="utf-8"/>
+            
         <link rel="stylesheet" href="css/normalize.min.css"/>
         <link rel="stylesheet" href="css/main.css"/>
         <link rel="stylesheet" href="css/stylesheet.css"/>
-
+        <link rel="stylesheet"  href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"/>
+        
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>');</script>
+        <script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
         <script src="js/vendor/jquery.dataTables.min.js"></script>
         <script src="js/facebook.js"></script>
         <script src="js/navigation.js"></script>
@@ -32,41 +43,62 @@ require_once("backend/database.php");
         <div id="top_header">
             <div id="menu">
                 <?php
-                $me = null;
-                try {
-                    $me = $facebook->api('/me');
-                    $_SESSION['id'] = $facebook->getUser();
-                    $_SESSION['role'] = userRole($_SESSION['id']);
-                } catch (FacebookApiException $e) {
-                    $_SESSION['role'] = 0;
-                }
-                if ($me == null) {
+                if (isset($loginUrl)) {
                     ?>
-                    <fb:login-button id="login_button" size="large" show-faces="false" width="200" max-rows="1" onlogin="window.location.reload(true);"></fb:login-button>
+                    <a id="login_button" href="<?= $loginUrl ?>">Login</a>
                     <?php
                 } else {
-                    $image = $facebook->api('/me?fields=picture.height(16).width(16)', 'GET');
-                    $name = $facebook->api('/me?fields=name', 'GET');
+                    if (!isset($_SESSION['id'])) {
+                        $_SESSION['id'] = $facebook->getUser();
+                        $_SESSION['role'] = userRole($_SESSION['id']);
+                        $image = $facebook->api('/me?fields=picture.height(16).width(16)', 'GET');
+                        $name = $facebook->api('/me?fields=name', 'GET');
+                        $_SESSION['image'] = $image['picture']['data']['url'];
+                        $_SESSION['name'] = $name['name'];
+                    }
                     ?>
                     <div id="user_info">
-
-                        <img src='<?= $image['picture']['data']['url'] ?>'/>
-                        <span class="username"><?= $name['name'] ?></span>
+                        <img src='<?= $_SESSION['image'] ?>'/>
+                        <span class="username"><?= $_SESSION['name'] ?></span>
                     </div>
                     <?php
+                    if ($_SESSION['logoutUrl'] ) {
+                        ?>
+                        <a id="login_button" href="<?= $_SESSION['logoutUrl'] ?>">Logout</a>
+                        <?php
+                    }
                 }
                 if ($_SESSION['role'] == 1) {
                     ?>
                     <div id="admin_panel">
-                        <a href="javascript:adminUsers()">Administer Users</a>
+                        <a href="?page=adminUsers">Administer Users</a>
                     </div>
                     <?php
                 }
+                if (isset($_SESSION['role'])) {
+                    ?>
+                    <a href="?page=posts">Posts</a>
+                    <?php
+                }
                 ?>
+                    
             </div>
         </div>
         <div id="content">
-
+            <?php
+            $page = $_GET['page'];
+            if (empty($page)) {
+                include("views/welcome.html");
+            } else if ($page == "adminUsers") {
+                if ($_SESSION['role'] > 0) {
+                    include("views/adminUsers.php");
+                } else {
+                    include("views/notAuthorized.html");
+                }
+            } else if ($page == "posts") {
+                include("views/posts.php");
+            }
+            ?>
         </div>
 
     </body>
