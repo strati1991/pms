@@ -1,6 +1,5 @@
 <?php
 session_start();
-require_once 'backend/database.php';
 if ($_SESSION['role'] != 1) {
     include("views/notAuthorized.html");
 } else {
@@ -16,6 +15,7 @@ if ($_SESSION['role'] != 1) {
                 <th>Username</th>
                 <th>Facebook-ID</th>
                 <th>Role</th>
+                <th>Pages</th>
             </tr>
         </thead>
         <tbody>
@@ -24,7 +24,7 @@ if ($_SESSION['role'] != 1) {
                 ?>
                 <tr>
                     <td><a href="#" onclick="del('<?= $row['id'] ?>');">del</a><a href="#" onclick="changeRole('<?= $row['id'] ?>');">role</a></td>
-                    <td id="name_<?= $row['id'] ?>"><?= $row['username'] ?></td>
+                    <td id="name_<?= $row['id'] ?>"><a style="color: #3b5998;" href="https://www.facebook.com/<?= $row['id'] ?>" target="_blank"><?= $row['username'] ?></a></td>
                     <td><?= $row['id'] ?></td>
                     <td data-role="<?= $row['role'] ?>" id="role_<?= $row['id'] ?>">
                         <?
@@ -36,6 +36,7 @@ if ($_SESSION['role'] != 1) {
                             echo "Root";
                         }
                         ?></td>
+                    <td><a onclick="showPages('<?= $row['id'] ?>');" href="#">Pages</a></td>
                 </tr>
                 <?php
             }
@@ -50,7 +51,7 @@ if ($_SESSION['role'] != 1) {
     </div>
     <div id="change_dialog" style="display:none">
         <p>
-            Rolle von <span id="username"></span> ändern:
+            Rolle von <span class="username"></span> ändern:
             <select id="select_role">
                 <option value="1">Admin</option>
                 <option value="0">User</option>
@@ -76,6 +77,14 @@ if ($_SESSION['role'] != 1) {
             </select>
         </p>
     </div>
+    <div id="show_pages" style="display:none;overflow: hidden" title="Shoq Pages">
+        <p>
+            Der User <span class="username"></span><br>
+            Hat auf folgenden Seiten "CREATE_CONTENT" Rechte:
+        <div id="pages_list" class="border" style="overflow:scroll;">
+        </div>
+    </p>
+    </div>
     <script type="text/javascript">
         $(document).ready(function() {
             $('#userlist').dataTable({
@@ -85,7 +94,7 @@ if ($_SESSION['role'] != 1) {
                 "bSort": true,
                 "bInfo": true,
                 "bAutoWidth": true,
-                "fnInitComplete": function () {
+                "fnInitComplete": function() {
                     $('#userlist').fadeIn();
                 }
             });
@@ -101,7 +110,7 @@ if ($_SESSION['role'] != 1) {
                     "Löschen": function() {
                         $(this).dialog("close");
                         $.ajax({
-                            url: "backend/user.php?action=delete&id=" + id,
+                            url: "backend/ajax_requests.php?action=delete&id=" + id,
                             success: function(data) {
                                 if (data == "OK") {
                                     window.location.href = "http://pms.social-media-hosting.com/?page=adminUsers";
@@ -125,7 +134,7 @@ if ($_SESSION['role'] != 1) {
             });
         }
         function changeRole(id) {
-            $("#username").html($("#name_" + id).html());
+            $(".username").html($("#name_" + id).html());
             $("#select_role").find("[value=" + $("#role_" + id).attr("data-role") + "]").attr('selected', 'selected');
             $("#change_dialog").dialog({
                 resizable: false,
@@ -137,7 +146,7 @@ if ($_SESSION['role'] != 1) {
                     "Ok": function() {
                         $(this).dialog("close");
                         $.ajax({
-                            url: "backend/user.php?action=changeRole&id=" + id + "&role=" + $("#select_role").val(),
+                            url: "backend/ajax_requests.php?action=changeRole&id=" + id + "&role=" + $("#select_role").val(),
                             success: function(data) {
                                 if (data == "OK") {
                                     window.location.href = "http://pms.social-media-hosting.com/?page=adminUsers";
@@ -171,7 +180,7 @@ if ($_SESSION['role'] != 1) {
                     "Ok": function() {
                         $(this).dialog("close");
                         $.ajax({
-                            url: "backend/user.php?action=add&username=" + $("#facebook_name").val() + "&role=" + $("#select_role_add").val(),
+                            url: "backend/ajax_requests.php?action=add&username=" + $("#facebook_name").val() + "&role=" + $("#select_role_add").val(),
                             success: function(data) {
                                 if (data == "OK") {
                                     window.location.href = "http://pms.social-media-hosting.com/?page=adminUsers";
@@ -191,6 +200,33 @@ if ($_SESSION['role'] != 1) {
                     "Abbrechen": function() {
                         $(this).dialog("close");
                     }
+                }
+            });
+        }
+        function showPages(id) {
+            $(".username").html($("#name_" + id).html());
+            $.ajax({
+                url: "backend/ajax_requests.php?action=showPages&id=" + id,
+                dataType: "json",
+                success: function(data) {
+                    pages = "<ul>";
+                    $.each(data.pages, function(index, value) {
+                        pages = pages + '<li><a class="underline" style="color: #3b5998;" target="_blank" href="https://www.facebook.com/' + value.ID + '">' + value.pageName + '</a></li>';
+                    });
+                    pages = pages + "</ul>";
+                    $("#pages_list").html(pages);
+                    $("#show_pages").dialog({
+                        resizable: false,
+                        height: 350,
+                        width: 400,
+                        modal: true,
+                        title: "Pages",
+                        buttons: {
+                            "Ok": function() {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
                 }
             });
         }

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once("backend/database.php");
+require_once("backend/database_functions.php");
 require_once("backend/facebook.php");
 ini_set('display_errors', 'On');
 error_reporting(E_all || E_STRICT);
@@ -51,10 +51,9 @@ if($action == "logout"){
                     if (!isset($_SESSION['id'])) {
                         $_SESSION['id'] = $facebook->getUser();
                         $_SESSION['role'] = userRole($_SESSION['id']);
-                        $image = $facebook->api('/me?fields=picture.height(16).width(16)', 'GET');
-                        $name = $facebook->api('/me?fields=name', 'GET');
-                        $_SESSION['image'] = $image['picture']['data']['url'];
-                        $_SESSION['name'] = $name['name'];
+                        $data = $facebook->api('/me?fields=picture.height(16).width(16),name', 'GET');
+                        $_SESSION['image'] = $data['picture']['data']['url'];
+                        $_SESSION['name'] = $data['name'];
                     }
                     ?>
                     <div id="user_info">
