@@ -23,7 +23,11 @@ if ($_SESSION['role'] != 1) {
             while ($row = mysql_fetch_array($result)) {
                 ?>
                 <tr>
-                    <td><a href="#" onclick="del('<?= $row['id'] ?>');">del</a><a href="#" onclick="changeRole('<?= $row['id'] ?>');">role</a></td>
+                    <td>
+                        <a href="#" onclick="del('<?= $row['id'] ?>');">del</a>
+                        <a href="#" onclick="changeRole('<?= $row['id'] ?>');">role</a>
+                        <a href="#" onclick="refresh('<?= $row['id'] ?>');">refresh Pages</a>
+                    </td>
                     <td id="name_<?= $row['id'] ?>"><a style="color: #3b5998;" href="https://www.facebook.com/<?= $row['id'] ?>" target="_blank"><?= $row['username'] ?></a></td>
                     <td><?= $row['id'] ?></td>
                     <td data-role="<?= $row['role'] ?>" id="role_<?= $row['id'] ?>">
@@ -51,7 +55,7 @@ if ($_SESSION['role'] != 1) {
     </div>
     <div id="change_dialog" style="display:none">
         <p>
-            Rolle von <span class="username"></span> ändern:
+            Rolle von <span class="dialog-username"></span> ändern:
             <select id="select_role">
                 <option value="1">Admin</option>
                 <option value="0">User</option>
@@ -79,7 +83,7 @@ if ($_SESSION['role'] != 1) {
     </div>
     <div id="show_pages" style="display:none;overflow: hidden" title="Shoq Pages">
         <p>
-            Der User <span class="username"></span><br>
+            Der User <span class="dialog-username"></span><br>
             Hat auf folgenden Seiten "CREATE_CONTENT" Rechte:
         <div id="pages_list" class="border" style="overflow:scroll;">
         </div>
@@ -134,7 +138,7 @@ if ($_SESSION['role'] != 1) {
             });
         }
         function changeRole(id) {
-            $(".username").html($("#name_" + id).html());
+            $(".dialog-username").html($("#name_" + id).html());
             $("#select_role").find("[value=" + $("#role_" + id).attr("data-role") + "]").attr('selected', 'selected');
             $("#change_dialog").dialog({
                 resizable: false,
@@ -204,7 +208,7 @@ if ($_SESSION['role'] != 1) {
             });
         }
         function showPages(id) {
-            $(".username").html($("#name_" + id).html());
+            $(".dialog-username").html($("#name_" + id).html());
             $.ajax({
                 url: "backend/ajax_requests.php?action=showPages&id=" + id,
                 dataType: "json",
@@ -230,6 +234,9 @@ if ($_SESSION['role'] != 1) {
                 }
             });
         }
+        function refresh(id) {
+            $.ajax("backend/ajax_requests.php?action=refresh&id=" + id);
+        } 
     </script>
     <?php
 }
