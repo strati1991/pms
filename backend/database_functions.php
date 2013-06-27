@@ -1,4 +1,5 @@
 <?php
+
 function userRole($id) {
     $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
     if (!$link) {
@@ -9,7 +10,7 @@ function userRole($id) {
     }
     $result = mysql_query("SELECT role FROM users WHERE id = '" . $id . "'", $link);
     if (!$result) {
-        exit;
+        return -1; //not in system
     }
     while ($row = mysql_fetch_assoc($result)) {
         return $row['role'];
@@ -45,4 +46,5 @@ function getUser($id) {
     }
     return $result;
 }
+
 ?>

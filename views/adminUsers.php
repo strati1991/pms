@@ -1,6 +1,9 @@
 <?php
+ini_set('display_errors', 'On');
+error_reporting(E_all || E_STRICT);
+require_once('../backend/database_functions.php');
 session_start();
-if ($_SESSION['role'] != 1) {
+if ($_SESSION['role'] == "0") {
     include("views/notAuthorized.html");
 } else {
     $result = listUsers();
@@ -117,7 +120,7 @@ if ($_SESSION['role'] != 1) {
                             url: "backend/ajax_requests.php?action=delete&id=" + id,
                             success: function(data) {
                                 if (data == "OK") {
-                                    window.location.href = "http://pms.social-media-hosting.com/?page=adminUsers";
+                                    refreshPage();
                                 } else {
                                     $("#alert_dialog").dialog({
                                         modal: true,
@@ -153,7 +156,7 @@ if ($_SESSION['role'] != 1) {
                             url: "backend/ajax_requests.php?action=changeRole&id=" + id + "&role=" + $("#select_role").val(),
                             success: function(data) {
                                 if (data == "OK") {
-                                    window.location.href = "http://pms.social-media-hosting.com/?page=adminUsers";
+                                    refreshPage();
                                 } else {
                                     $("#alert_dialog").dialog({
                                         modal: true,
@@ -187,7 +190,7 @@ if ($_SESSION['role'] != 1) {
                             url: "backend/ajax_requests.php?action=add&username=" + $("#facebook_name").val() + "&role=" + $("#select_role_add").val(),
                             success: function(data) {
                                 if (data == "OK") {
-                                    window.location.href = "http://pms.social-media-hosting.com/?page=adminUsers";
+                                    refreshPage();
                                 } else {
                                     $("#alert_dialog").dialog({
                                         modal: true,
@@ -236,7 +239,10 @@ if ($_SESSION['role'] != 1) {
         }
         function refresh(id) {
             $.ajax("backend/ajax_requests.php?action=refresh&id=" + id);
-        } 
+        }
+        function refreshPage() {
+            load("adminUsers");
+        }
     </script>
     <?php
 }

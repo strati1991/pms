@@ -8,7 +8,34 @@ $config['appId'] = '192351964261671';
 $config['secret'] = '2c0ce846356ab46e072b68aae2bcc3db';
 $facebook = new Facebook($config);
 session_start();
-if ($_SESSION['role'] == 1) {
+if ($_GET["action"] == "createSession") {
+    $facebook = new Facebook($config);
+    $user = $facebook->getUser();
+    $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
+    if (!$link) {
+        exit;
+    }
+    if (!mysql_select_db('usr_p158169_51', $link)) {
+        exit;
+    }
+    $result = mysql_query("SELECT * FROM users WHERE id = '" . $user . "'", $link);
+    if (!$result) {
+        echo "user is not registered";
+    }
+    while ($row = mysql_fetch_assoc($result)) {
+        $_SESSION['ID'] = $user;
+        $_SESSION['role'] = $row['role'];
+        $_SESSION['username'] = $row['username'];
+        echo ' { "id": "' . $user . '", "role": "' . $row['role'] . '", "username": "' . $row['username'] . '"}';
+    }
+}
+if ($_GET["action"] == "destroySession") {
+    $facebook->destroySession();
+    session_destroy();
+    session_unset();
+    session_start();
+}
+if ($_SESSION['role'] != "0") {
     if ($_GET["action"] == "changeRole") {
         $id = $_GET["id"];
         $role = $_GET["role"];
