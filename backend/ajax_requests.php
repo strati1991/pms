@@ -3,24 +3,55 @@
 ini_set('display_errors', 'On');
 error_reporting(E_all || E_STRICT);
 require_once("../facebook-sdk/facebook.php");
-$config = array();
-$config['appId'] = '192351964261671';
-$config['secret'] = '2c0ce846356ab46e072b68aae2bcc3db';
-$facebook = new Facebook($config);
+require_once("../backend/config.php");
+require_once("../backend/database_functions.php");
 session_start();
-if ($_GET["action"] == "createSession") {
-    $facebook = new Facebook($config);
-    $user = $facebook->getUser();
-    $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
-    if (!$link) {
-        exit;
-    }
-    if (!mysql_select_db('usr_p158169_51', $link)) {
-        exit;
-    }
-    $result = mysql_query("SELECT * FROM users WHERE id = '" . $user . "'", $link);
+
+$id = $_GET["id"];
+$role = $_GET["role"];
+$username = $_GET["username"];
+
+$facebook = new Facebook($config);
+$user = $facebook->getUser();
+$name = $facebook->api("/" . $user . "?fields=username");
+if ($_GET["action"] == "addPost") {
+    query("INSERT IGNORE INTO posts (userID,message,startTime,picture,link)VALUES ('" . $_SESSION['ID'] . "','" . $_GET['message'] . "','" . $_GET['publishdate'] . "','" . $_GET['picture'] . "','" . $_GET['link'] . "')");
+    echo "OK";
+}
+
+if ($_GET["action"] == "getPost") {
+    $result = query("SELECT * FROM posts where postID='" . $id . "'");
+
     if (!$result) {
-        echo "user is not registered";
+        echo $errors['DATABASE_CON'];
+        exit;
+    }
+    $row = mysql_fetch_assoc($result);
+    echo '{ "message": "' . $row['message'] . '","startTime" :"' . $row['startTime'] . '","picture" :"' . $row['picture'] . '","link" :"' . $row['link'] . '"}';
+}
+
+if ($_GET["action"] == "updatePost") {
+    query("UPDATE posts SET message='" . $_GET["message"] . "',link='" . $_GET["link"] . "',picture='" . $_GET["picture"] . "',startTime='" . $_GET["publishdate"] . "' WHERE postID = '" . $id . "'");
+    echo "OK";
+}
+
+if ($_GET["action"] == "register") {
+    if ($user) {
+        query("INSERT INTO register_notification (id,userName,time) VALUES ('" . $user . "','" . $name['username'] . "',NOW())");
+    } else {
+        echo $errors['USER'];
+    }
+}
+
+if ($_GET["action"] == "createSession") {
+    $result = query("SELECT * FROM users WHERE id = '" . $user . "'");
+    if (!$result) {
+        echo $errors['DATABASE_CON'];
+        exit;
+    }
+    $num_results = mysql_num_rows($result);
+    if ($num_results == 0) {
+        echo $errors['NOT_IN_DATABASE'];
     }
     while ($row = mysql_fetch_assoc($result)) {
         $_SESSION['ID'] = $user;
@@ -32,42 +63,25 @@ if ($_GET["action"] == "createSession") {
 if ($_GET["action"] == "destroySession") {
     $facebook->destroySession();
     session_destroy();
-    session_unset();
-    session_start();
+    exit;
 }
 if ($_SESSION['role'] != "0") {
     if ($_GET["action"] == "changeRole") {
-        $id = $_GET["id"];
-        $role = $_GET["role"];
-        $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
-        if (!$link) {
-            exit;
-        }
-        if (!mysql_select_db('usr_p158169_51', $link)) {
-            exit;
-        }
-        mysql_query("UPDATE users SET role='" . $role . "' WHERE id = '" . $id . "'", $link);
+        query("UPDATE users SET role='" . $role . "' WHERE id = '" . $id . "'");
         echo "OK";
     }
     if ($_GET["action"] == "delete") {
-
-        $id = $_GET["id"];
-        $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
-        if (!$link) {
-            exit;
-        }
-        if (!mysql_select_db('usr_p158169_51', $link)) {
-            exit;
-        }
-        mysql_query("DELETE FROM users WHERE id = '" . $id . "'", $link);
+        query("DELETE FROM users WHERE id = '" . $id . "'");
         echo "OK";
     }
     if ($_GET["action"] == "add") {
-
-        $username = $_GET["username"];
-        $role = $_GET["role"];
-        $id = $facebook->api('/' . $username . '?fields=id', 'GET');
-        $sites = $facebook->api('/' . $id['id'] . '/accounts', 'GET');
+        try {
+            $id = $facebook->api('/' . $username . '?fields=id', 'GET');
+            $sites = $facebook->api('/' . $id['id'] . '/accounts', 'GET');
+        } catch (Exception $e) {
+            echo $errors['NOT_A_USER'];
+            exit;
+        }
         $sites = $sites['data'];
         $insert_pages = "INSERT INTO pages (userID,ID,pageNAME) VALUES ";
         foreach ($sites as $value) {
@@ -80,55 +94,55 @@ if ($_SESSION['role'] != "0") {
             }
         }
         $insert_pages = substr($insert_pages, 0, -1);
-        $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
-        if (!$link) {
-            exit;
-        }
-        if (!mysql_select_db('usr_p158169_51', $link)) {
-            exit;
-        }
-        mysql_query("INSERT INTO users VALUES ('" . $id['id'] . "','" . $role . "','" . $username . "')", $link);
-        mysql_query($insert_pages, $link);
+        query("INSERT INTO users VALUES ('" . $id['id'] . "','" . $role . "','" . $username . "')");
+        query($insert_pages, $link);
+        query("DELETE FROM register_notification WHERE userName='" . $username . "'");
         echo "OK";
     }
     if ($_GET["action"] == "showPages") {
-
-        $id = $_GET["id"];
-        $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
-        if (!$link) {
-            exit;
-        }
-        if (!mysql_select_db('usr_p158169_51', $link)) {
-            exit;
-        }
-        $result = mysql_query("SELECT * FROM pages WHERE userID='" . $id . "'", $link);
+        $result = query("SELECT * FROM pages WHERE userID='" . $id . "'");
         $response = '{ "pages" : [';
-        while ($row = mysql_fetch_assoc($result)) {
-            $response = $response . '{ "pageName" : "' . $row['pageNAME'] . '", "ID" : "' . $row['ID'] . '", "userID" : "' . $row['userID'] . '"},';
+        if (mysql_num_rows($result) == 0) {
+            echo "{}";
+        } else {
+            while ($row = mysql_fetch_assoc($result)) {
+                $response = $response . '{ "pageName" : "' . $row['pageName'] . '", "pageID" : "' . $row['pageID'] . '", "userID" : "' . $row['userID'] . '"},';
+            }
+            $response = substr($response, 0, -1);
+            $response = $response . "]}";
+            echo $response;
         }
-        $response = substr($response, 0, -1);
-        $response = $response . "]}";
-        echo $response;
+    }
+    if ($_GET["action"] == "addPage") {
+        try {
+            $page = $facebook->api("/" . $_GET["page"]);
+        } catch (Exception $e) {
+            echo $errors['NOT_A_PAGE'];
+            exit;
+        }
+        $result = query("SELECT * FROM pages WHERE userID='" . $id . "' and pageID='" . $page['id'] . "'");
+        if (mysql_num_rows($result) != 0) {
+            echo "OK";
+            exit;
+        }
+        if ($page['id'] != null) {
+            $result = query("INSERT IGNORE INTO pages (userID,pageID,pageNAME) VALUES ('" . $_GET["id"] . "','" . $page['id'] . "','" . $_GET["page"] . "')");
+            echo "OK";
+        } else {
+            echo $errors['NOT_A_PAGE'];
+            exit;
+        }
     }
     if ($_GET["action"] == "refresh") {
-
-        $id = $_GET["id"];
         $sites = $facebook->api('/' . $id . '/accounts', 'GET');
         $sites = $sites['data'];
-        $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
-        if (!$link) {
-            exit;
-        }
-        if (!mysql_select_db('usr_p158169_51', $link)) {
-            exit;
-        }
         foreach ($sites as $value) {
             $perms = $value['perms'];
             foreach ($perms as $perm) {
                 if ($perm == "CREATE_CONTENT") {
-                    $insert_pages = "INSERT IGNORE INTO pages (userID,ID,pageNAME) VALUES ";
+                    $insert_pages = "INSERT IGNORE INTO pages (userID,pageID,pageNAME) VALUES ";
                     $insert_pages = $insert_pages . "('" . $id . "','" . $value['id'] . "','" . $value['name'] . "')";
-                    mysql_query($insert_pages, $link);
+                    query($insert_pages);
                     break;
                 }
             }

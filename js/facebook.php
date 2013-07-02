@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 'On');
+error_reporting(E_all || E_STRICT);
 require_once("backend/config.php");
 ?>
 <div id="fb-root"></div>
@@ -10,25 +12,25 @@ require_once("backend/config.php");
             channelUrl: '/channel.html',
             status: true, // check login status
             cookie: true, // enable cookies to allow the server to access the session
-            xfbml: true  // parse XFBML
+            oauth: true
         });
         FB.getLoginStatus(function(response) {
             if (response.status === 'connected') {
                 var uid = response.authResponse.userID;
                 accessToken = response.authResponse.accessToken;
                 updateUserAndMenu();
-                $('#login_button').hide()
-                $('#logout_button').show();
+                $('#login-button').hide()
+                $('#logout-button').show();
             } else if (response.status === 'not_authorized') {
                 load("welcome");
-                $("#loading_screen").fadeOut();
-                 $('#login_button').show()
-                $('#logout_button').hide();
+                $("#loading-screen").fadeOut();
+                $('#login-button').show()
+                $('#logout-button').hide();
             } else {
                 load("welcome");
-                $("#loading_screen").fadeOut();
-                $('#login_button').show()
-                $('#logout_button').hide();
+                $("#loading-screen").fadeOut();
+                $('#login-button').show()
+                $('#logout-button').hide();
             }
         });
     };
@@ -39,12 +41,13 @@ require_once("backend/config.php");
         e.async = true;
         document.getElementById('fb-root').appendChild(e);
     }());
-    
-    
-    
-    
+
+
+
+
     function login() {
         FB.login(function(response) {
+            console.log(response);
             if (response.authResponse) {
                 accessToken = response.authResponse.accessToken;
                 updateUserAndMenu();
@@ -55,25 +58,31 @@ require_once("backend/config.php");
         }, {scope: 'email,manage_pages'});
     }
     function updateUserAndMenu() {
-        ajaxAPI("/me?fields=picture.height(16).width(16),name&access_token=" + accessToken, function(response) {
+        ajaxFAPI("/me?fields=picture.height(24).width(24),name&access_token=" + accessToken, function(response) {
+            var _response = response;
             createSession(function(response) {
-                response = $.parseJSON(response);
-                if (parseInt(response.role) > 0) {
-                    $("#admin_panel").show();
-                }
+                handleError(response,function(){
+                    response = $.parseJSON(response);
+                    if (parseInt(response.role) > 0) {
+                        $("#admin-users-button").show();
+                    }
+                    $("#login-button").hide();
+                    $("#logout-button").show();
+                    $("#posts-button").show();
+                    $("#user-info img").attr("src", _response.picture.data.url);
+                    $(".username").html(_response.name);
+                    $("#notification-button").show();
+                    $("#nav").fadeIn();
+                    $("#user-info").fadeIn();
+                    load("welcome");
+                });                
             });
-            $(".page-link").fadeIn();
-            $("#login_button").hide();
-            $("#logout_button").show();
-            $("#user_info img").attr("src", response.picture.data.url);
-            $("#user_info .username").html(response.name);
-            load("welcome");
         });
     }
-    function logout(){
+    function logout() {
         FB.logout(function(response) {
-          destroySession(reloadPage());
+            deleteCookie();
+            destroySession(reloadPage());
         });
     }
-
 </script>

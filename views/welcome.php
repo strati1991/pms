@@ -6,7 +6,7 @@ if(isset($_SESSION['username'])) {
     <?php
 } else {
  ?>
-    <h1>Hallo, clicke bitte auf Login</h1>
+    <h1>Hallo, klicke bitte auf Login</h1>
     <?php
 }
 ?>

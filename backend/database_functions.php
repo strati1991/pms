@@ -1,16 +1,26 @@
 <?php
 
-function userRole($id) {
+ini_set('display_errors', 'On');
+error_reporting(E_all || E_STRICT);
+require_once("config.php");
+
+function query($query) {
     $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
     if (!$link) {
+        echo $errors['DATABASE_CON'];
         exit;
     }
     if (!mysql_select_db('usr_p158169_51', $link)) {
+        echo $errors['DATABASE_CON'];
         exit;
     }
-    $result = mysql_query("SELECT role FROM users WHERE id = '" . $id . "'", $link);
+    return mysql_query($query);
+}
+
+function userRole($id) {
+    $result = query("SELECT role FROM users WHERE id = '" . $id . "'", $link);
     if (!$result) {
-        return -1; //not in system
+        return $errors['VALUE']; //not in system
     }
     while ($row = mysql_fetch_assoc($result)) {
         return $row['role'];
@@ -18,14 +28,20 @@ function userRole($id) {
 }
 
 function listUsers() {
-    $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
-    if (!$link) {
-        exit;
+    $result = query("SELECT * FROM users", $link);
+    if (!$result) {
+        return $errors['DATABASE_CON']; //not in system
     }
-    if (!mysql_select_db('usr_p158169_51', $link)) {
-        exit;
+    return $result;
+}
+
+function listPosts($user) {
+    if (!$user) {
+        $result = query("SELECT * FROM posts", $link);
+    } else {
+        $result = query("SELECT * FROM posts where userId = '" . $user . "'", $link);
     }
-    $result = mysql_query("SELECT * FROM users", $link);
+
     if (!$result) {
         exit;
     }
@@ -33,14 +49,7 @@ function listUsers() {
 }
 
 function getUser($id) {
-    $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
-    if (!$link) {
-        exit;
-    }
-    if (!mysql_select_db('usr_p158169_51', $link)) {
-        exit;
-    }
-    $result = mysql_query("SELECT * FROM users WHERE id = '" . $id . "'", $link);
+    $result = query("SELECT * FROM users WHERE id = '" . $id . "'", $link);
     if (!$result) {
         exit;
     }
