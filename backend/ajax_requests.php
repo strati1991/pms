@@ -15,7 +15,25 @@ $facebook = new Facebook($config);
 $user = $facebook->getUser();
 $name = $facebook->api("/" . $user . "?fields=username");
 if ($_GET["action"] == "addPost") {
-    query("INSERT IGNORE INTO posts (userID,message,startTime,picture,link)VALUES ('" . $_SESSION['ID'] . "','" . $_GET['message'] . "','" . $_GET['publishdate'] . "','" . $_GET['picture'] . "','" . $_GET['link'] . "')");
+    query("INSERT IGNORE INTO posts (userID,message,startTime,picture,link)VALUES ('" . $_SESSION['ID'] . "','" . mysql_escape_string($_GET['message']) . "','" . $_GET['publishdate'] . "','" . mysql_escape_string($_GET['picture']) . "','" . mysql_escape_string($_GET['link']) . "')");
+    echo "OK";
+}
+if ($_GET["action"] == "getComments") {
+    $result = query("SELECT postID,userID,username,text FROM comments,users where postID='" . $id . "' and comments.userID = users.id order by comments.ID");
+    if (!$result) {
+        echo $errors['DATABASE_CON'];
+        exit;
+    }
+    $get = '{ "comments":[';
+    while ($row = mysql_fetch_assoc($result)) {
+        $get = $get +  '{ "userID": "' . $row['userID'] . '", "postID": "' . $row['postID'] . '", "username": "' . $row['username'] . '", "text": "' . $row['text'] . '"},';
+    }
+    $get = substr($get, 0, -1);
+    $get = $get + "]}";
+    echo $get;
+}
+if ($_GET["action"] == "addComment") {
+    query("INSERT IGNORE INTO comments (postID,userID,text) VALUES ('" . $_GET['postID'] . "','" . $_SESSION['ID'] . "','" . mysql_escape_string($_GET['comment']) . "')");
     echo "OK";
 }
 
@@ -27,7 +45,7 @@ if ($_GET["action"] == "getPost") {
         exit;
     }
     $row = mysql_fetch_assoc($result);
-    echo '{ "message": "' . $row['message'] . '","startTime" :"' . $row['startTime'] . '","picture" :"' . $row['picture'] . '","link" :"' . $row['link'] . '"}';
+    echo '{ "message": "' . mysql_escape_string($row['message']) . '","startTime" :"' . $row['startTime'] . '","picture" :"' . mysql_escape_string($row['picture']) . '","link" :"' . mysql_escape_string($row['link']) . '"}';
 }
 
 if ($_GET["action"] == "updatePost") {
@@ -140,10 +158,12 @@ if ($_SESSION['role'] != "0") {
             $perms = $value['perms'];
             foreach ($perms as $perm) {
                 if ($perm == "CREATE_CONTENT") {
-                    $insert_pages = "INSERT IGNORE INTO pages (userID,pageID,pageNAME) VALUES ";
-                    $insert_pages = $insert_pages . "('" . $id . "','" . $value['id'] . "','" . $value['name'] . "')";
-                    query($insert_pages);
-                    break;
+                    if (mysql_num_rows(query("SELECT * FROM pages where userID='" . $id . "' AND pageID='" . $value['id'] . "'")) == 0) {
+                        $insert_pages = "INSERT IGNORE INTO pages (userID,pageID,pageNAME) VALUES ";
+                        $insert_pages = $insert_pages . "('" . $id . "','" . $value['id'] . "','" . $value['name'] . "')";
+                        query($insert_pages);
+                        break;
+                    }
                 }
             }
         }

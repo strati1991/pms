@@ -34,7 +34,7 @@ if ($_SESSION['role'] == "0") {
                                 <button class="btn" onclick="del('<?= $row['id'] ?>');">Löschen</button>
                                 <button class="btn" onclick="changeRole('<?= $row['id'] ?>');">Rolle ändern</button>
                                 <?php
-                                if ($row['role'] > 0) {
+                                if ($row['role'] > 0 && $row['id'] == $_SESSION['ID']) {
                                     ?>
                                     <button class="btn" onclick="refresh('<?= $row['id'] ?>');">Seiten aktualisieren</button>
                                 <?php }
@@ -247,7 +247,8 @@ if ($_SESSION['role'] == "0") {
                         showModal({
                             content: $("#show-pages").html(),
                             title: "Seiten",
-                            saveLabel: "Schließen"
+                            saveLabel:"Schließen",
+                            hideCloseButton:true
                         });
                     }
                 });

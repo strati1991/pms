@@ -2,8 +2,9 @@
 require_once("backend/config.php");
 ?>
 <script>
-    var view = { init: function(){}};
-    function load(page,callback) {
+    var view = {init: function() {
+        }};
+    function load(page, callback) {
         $("#content").hide()
         $("#loading-screen").show();
         $.ajax("/views/" + page + ".php").done(function(response) {
@@ -11,10 +12,10 @@ require_once("backend/config.php");
             $("#loading-screen").fadeOut();
             view.init();
             $("#content").fadeIn();
-            if(callback){
+            if (callback) {
                 callback();
             }
-            
+
         });
     }
     function ajaxFAPI(facebook, callback) {
@@ -62,6 +63,7 @@ require_once("backend/config.php");
         return true;
     }
     function handleError(error, callback) {
+        $("#loading-screen").fadeOut();
         error = error.toString();
         if (error === "<?= $errors['VALUE'] ?>") {
             $("#alert-auth-dialog").fadeIn();
@@ -89,34 +91,47 @@ require_once("backend/config.php");
             $("#modal-dialog #alert-not-a-user-dialog").fadeIn();
             return;
         }
-        if(callback){
+        if (callback) {
             callback();
         }
     }
-    function showModal(data,callback) {
+    function showModal(data, callback) {
         $("#modal-content").html(data.content);
         $("#modal-header").html(data.title);
         $("#modal-save-changes").html(data.saveLabel);
         if (data.saveLabel) {
             $("#modal-save-changes").show();
         }
-        if (data.closeLabel) {
-            $("#modal-close").html(data.closeLabel);
+        if (!data.hideCloseButton) {
+            $("#modal-close").show();
+            if (data.closeLabel) {
+                $("#modal-close").html(data.closeLabel);
+            } else {
+                $("#modal-close").html("Abbrechen");
+            }
         } else {
-            $("#modal-close").html("Abbrechen");
+             $("#modal-close").hide();
         }
+
         $("#modal-save-changes").unbind();
-        $("#modal-save-changes").bind("click", data.saveFunction);
+        if(!data.saveFunction){
+            $("#modal-save-changes").bind("click", function(){$("#modal-dialog").modal("hide");});
+        } else {
+            $("#modal-save-changes").bind("click", data.saveFunction);
+        }
+        if(data.preShowFunction){
+             data.preShowFunction();
+        }
         $("#modal-dialog").modal("show");
-        if(callback){
+        if (callback) {
             callback();
         }
     }
-    function showNotifications(){
+    function showNotifications() {
         $('#notification-button').popover({
-            placement:"bottom",
-            html:true,
-            content:$("#notifications").html()
+            placement: "bottom",
+            html: true,
+            content: $("#notifications").html()
         });
     }
 </script>

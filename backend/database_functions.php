@@ -36,12 +36,11 @@ function listUsers() {
 }
 
 function listPosts($user) {
-    if (!$user) {
+    if (!$user && $_SESSION['role'] > 0) {
         $result = query("SELECT * FROM posts", $link);
     } else {
         $result = query("SELECT * FROM posts where userId = '" . $user . "'", $link);
     }
-
     if (!$result) {
         exit;
     }
