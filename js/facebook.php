@@ -58,10 +58,10 @@ require_once("backend/config.php");
         }, {scope: 'email,manage_pages'});
     }
     function updateUserAndMenu() {
-        ajaxFAPI("/me?fields=picture.height(24).width(24),name&access_token=" + accessToken,true, function(response) {
+        ajaxFAPI("/me?fields=picture.height(24).width(24),name&access_token=" + accessToken, true, function(response) {
             var _response = $.parseJSON(response);
             createSession(function(response) {
-                handleError(response,function(){
+                handleError(response, function() {
                     response = $.parseJSON(response);
                     if (parseInt(response.role) > 0) {
                         $("#admin-users-button").show();
@@ -75,7 +75,7 @@ require_once("backend/config.php");
                     $("#nav").fadeIn();
                     $("#user-info").fadeIn();
                     load("welcome");
-                });                
+                });
             });
         });
     }

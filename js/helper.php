@@ -18,11 +18,11 @@ require_once("backend/config.php");
 
         });
     }
-    function ajaxFAPI(facebook,async, callback) {
-        $.ajax({datatype:"json",
-            url:"/backend/phpProxy.php?api=" + escape(facebook),
-            async:async
-        }).done(callback);    
+    function ajaxFAPI(facebook, async, callback) {
+        $.ajax({datatype: "json",
+            url: "/backend/phpProxy.php?api=" + escape(facebook),
+            async: async
+        }).done(callback);
     }
     function createSession(callback) {
         $.ajax("/backend/ajax_requests.php?action=createSession").done(callback);
@@ -103,24 +103,26 @@ require_once("backend/config.php");
             $("#modal-save-changes").show();
         }
         if (!data.hideCloseButton) {
-            $("#modal-close").show(); 
+            $("#modal-close").show();
             if (data.closeLabel) {
                 $("#modal-close").html(data.closeLabel);
             } else {
                 $("#modal-close").html("Abbrechen");
             }
         } else {
-             $("#modal-close").hide();
+            $("#modal-close").hide();
         }
 
         $("#modal-save-changes").unbind();
-        if(!data.saveFunction){
-            $("#modal-save-changes").bind("click", function(){$("#modal-dialog").modal("hide");});
+        if (!data.saveFunction) {
+            $("#modal-save-changes").bind("click", function() {
+                $("#modal-dialog").modal("hide");
+            });
         } else {
             $("#modal-save-changes").bind("click", data.saveFunction);
         }
-        if(data.preShowFunction){
-             data.preShowFunction();
+        if (data.preShowFunction) {
+            data.preShowFunction();
         }
         $("#modal-dialog").modal("show");
         if (callback) {

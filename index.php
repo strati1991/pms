@@ -44,17 +44,18 @@ require_once("backend/database_functions.php");
                             <li><a id="admin-users-button" style="display:none" href="#" onclick="load('adminUsers')" >Administer Users</a></li>
                             <li><a id="posts-button" href="#" style="display:none"  onclick="load('posts')" >Posts</a></li>
                         </ul>
-                        
+
                         <ul class="nav pull-right">
-                            <?php if($_SESSION['role'] > 1 ) {
+                            <?php
+                            if ($_SESSION['role'] > 1) {
                                 $result = query("SELECT * FROM register_notification", $link);
                                 $num_notifs = mysql_num_rows($result);
                             } else {
                                 $num_notifs = 0;
                             }
                             ?>
-                            <li><a id="notification-button" style="display:none" href="#" onclick="showNotifications()"><?=$num_notifs?></a></li>
-                            
+                            <li><a id="notification-button" style="display:none" href="#" onclick="showNotifications()"><?= $num_notifs ?></a></li>
+
                             <li><a id="login-button"  href="#" onclick="login()" style="display:none">Login</a></li>
                             <li><a id="logout-button"  href="#" onclick="logout()" style="display:none">Logout</a></li>
                         </ul>
@@ -88,7 +89,7 @@ require_once("backend/database_functions.php");
             <?php
             if ($result) {
                 while ($row = mysql_fetch_assoc($result)) {
-                    echo '<a onclick="addNewUser('. "'"  . $row['userName'] . "'" . ');" >' . $row['userName'] . ' möchte hinzugefügt werden!</a>';
+                    echo '<a onclick="addNewUser(' . "'" . $row['userName'] . "'" . ');" >' . $row['userName'] . ' möchte hinzugefügt werden!</a>';
                 }
             }
             ?>
@@ -126,12 +127,12 @@ require_once("backend/database_functions.php");
             $("#close").bind("click", function() {
                 $('#modal-dialog').modal('hide');
             });
-            function addNewUser(username){
-                load("adminUsers",function(){
+            function addNewUser(username) {
+                load("adminUsers", function() {
                     addUser();
                     $("#modal-dialog #modal-facebook-name").val(username);
                 });
-                
+
             }
         </script>
     </body>

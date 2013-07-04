@@ -158,16 +158,16 @@ if ($_SESSION['role'] > 0) {
                 $("#modal-dialog #comment").hide();
                 $.ajax("backend/ajax_posts.php?action=addComment&postID=" + id + "&comment=" + escape($("#modal-dialog #comment").val())).done(function(response) {
                     $("#modal-dialog #comments").append("<div class='comment' id='comment-" + id + "'>" +
-                                                            "<img class='image_<?=$_SESSON['username']?>' src='img/ajax-loader.gif'>" +
-                                                            "<p>" + username + "</p>" +
-                                                            "<span></span>" + 
-                                                            "<a class='delete' href='#' onclick='deleteComment(" + id + ")'>x</a>" + 
-                                                        "</div>");
+                            "<img class='image_<?= $_SESSON['username'] ?>' src='img/ajax-loader.gif'>" +
+                            "<p>" + username + "</p>" +
+                            "<span></span>" +
+                            "<a class='delete' href='#' onclick='deleteComment(" + id + ")'>x</a>" +
+                            "</div>");
                     $("#modal-dialog #comment-" + id + " span").text($("#modal-dialog #comment").val());
-                    ajaxFAPI("/" + username.replace(new RegExp('[_]', 'g'),".") + "?fields=picture.height(24).width(24),name&access_token=" + accessToken,true,function(response) {
-                            response = $.parseJSON(response);
-                            $(".image_<?=$_SESSON['username']?>").attr("src",response.picture.data.url);
-                        });
+                    ajaxFAPI("/" + username.replace(new RegExp('[_]', 'g'), ".") + "?fields=picture.height(24).width(24),name&access_token=" + accessToken, true, function(response) {
+                        response = $.parseJSON(response);
+                        $(".image_<?= $_SESSON['username'] ?>").attr("src", response.picture.data.url);
+                    });
                     $("#modal-dialog #comments .comment").mouseover(function() {
                         $(this).find(".delete").show();
                     });
@@ -196,23 +196,26 @@ if ($_SESSION['role'] > 0) {
                     $("#comments").html("");
                     var users = {};
                     $.each(response.comments, function(index, value) {
-                            var image_id = value.username.replace(new RegExp('[.]', 'g'),"_");
-                            if(!(image_id in users)){users[image_id] = image_id;};
-                            $("#comments").append("<div class='comment' id='comment-" + value.ID + "'>" +
-                                                        "<img class='image_"+ image_id + "' src='img/ajax-loader.gif'>" + 
-                                                        "<p>" + value.username.replace(new RegExp('[.]', 'g')," ") + "</p>" +
-                                                        "<span></span>" + 
-                                                        (("<?=$_SESSION['username']?>" === value.username) ? "<a class='delete' href='#' onclick='deleteComment(" + value.ID + ")'>x</a>" : "") +
-                                                   "</div>");
-                            $("#comment-" + value.ID + " span").text(value.text);
+                        var image_id = value.username.replace(new RegExp('[.]', 'g'), "_");
+                        if (!(image_id in users)) {
+                            users[image_id] = image_id;
+                        }
+                        ;
+                        $("#comments").append("<div class='comment' id='comment-" + value.ID + "'>" +
+                                "<img class='image_" + image_id + "' src='img/ajax-loader.gif'>" +
+                                "<p>" + value.username.replace(new RegExp('[.]', 'g'), " ") + "</p>" +
+                                "<span></span>" +
+                                (("<?= $_SESSION['username'] ?>" === value.username) ? "<a class='delete' href='#' onclick='deleteComment(" + value.ID + ")'>x</a>" : "") +
+                                "</div>");
+                        $("#comment-" + value.ID + " span").text(value.text);
                     });
                     $.each(users, function(index, value) {
-                        ajaxFAPI("/" + value.replace(new RegExp('[_]', 'g'),".") + "?fields=picture.height(24).width(24),name&access_token=" + accessToken,true,function(response) {
+                        ajaxFAPI("/" + value.replace(new RegExp('[_]', 'g'), ".") + "?fields=picture.height(24).width(24),name&access_token=" + accessToken, true, function(response) {
                             response = $.parseJSON(response);
-                            $(".image_" + value).attr("src",response.picture.data.url);
+                            $(".image_" + value).attr("src", response.picture.data.url);
                         });
                     });
-                    
+
                     showModal({
                         content: $("#preview-dialog").html(),
                         title: "Post kommentieren",
