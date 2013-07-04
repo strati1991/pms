@@ -58,8 +58,8 @@ require_once("backend/config.php");
         }, {scope: 'email,manage_pages'});
     }
     function updateUserAndMenu() {
-        ajaxFAPI("/me?fields=picture.height(24).width(24),name&access_token=" + accessToken, function(response) {
-            var _response = response;
+        ajaxFAPI("/me?fields=picture.height(24).width(24),name&access_token=" + accessToken,true, function(response) {
+            var _response = $.parseJSON(response);
             createSession(function(response) {
                 handleError(response,function(){
                     response = $.parseJSON(response);

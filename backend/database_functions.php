@@ -37,9 +37,9 @@ function listUsers() {
 
 function listPosts($user) {
     if (!$user && $_SESSION['role'] > 0) {
-        $result = query("SELECT * FROM posts", $link);
+        $result = query("SELECT posts.*,users.username FROM posts join users on posts.userID = users.id", $link);
     } else {
-        $result = query("SELECT * FROM posts where userId = '" . $user . "'", $link);
+        $result = query("SELECT posts.*,users.username FROM posts join users on posts.userID = users.id where userId = '" . $user . "'", $link);
     }
     if (!$result) {
         exit;

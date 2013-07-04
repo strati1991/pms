@@ -21,6 +21,7 @@ require_once("backend/database_functions.php");
         <link href="css/stylesheet.css" rel="stylesheet" media="screen"/>
         <link href="css/jquery.dataTables.css" rel="stylesheet"/>
         <link href="css/datepicker.css" rel="stylesheet"/>
+        <link href="css/bootstrap-multiselect.css" rel="stylesheet"/>
     </head>
     <body data-twttr-rendered="true">
         <!--[if lt IE 7]>
@@ -115,6 +116,7 @@ require_once("backend/database_functions.php");
         <script src="js/vendor/jquery.dataTables.min.js"></script>
         <script src="js/vendor/bootstrap.min.js"></script>
         <script src="js/vendor/bootstrap-datepicker.js"></script>
+        <script src="js/vendor/bootstrap-multiselect.js"></script>
         <?php
         require_once("js/helper.php");
         require_once("js/facebook.php");

@@ -18,11 +18,11 @@ require_once("backend/config.php");
 
         });
     }
-    function ajaxFAPI(facebook, callback) {
-        $.getJSON(
-                "/backend/phpProxy.php?api=" + escape(facebook),
-                callback
-                );
+    function ajaxFAPI(facebook,async, callback) {
+        $.ajax({datatype:"json",
+            url:"/backend/phpProxy.php?api=" + escape(facebook),
+            async:async
+        }).done(callback);    
     }
     function createSession(callback) {
         $.ajax("/backend/ajax_requests.php?action=createSession").done(callback);
@@ -103,7 +103,7 @@ require_once("backend/config.php");
             $("#modal-save-changes").show();
         }
         if (!data.hideCloseButton) {
-            $("#modal-close").show();
+            $("#modal-close").show(); 
             if (data.closeLabel) {
                 $("#modal-close").html(data.closeLabel);
             } else {

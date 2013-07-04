@@ -1,5 +1,4 @@
 <?php
-
 ini_set('display_errors', 'On');
 error_reporting(E_all || E_STRICT);
 require_once("../facebook-sdk/facebook.php");
@@ -14,44 +13,6 @@ $username = $_GET["username"];
 $facebook = new Facebook($config);
 $user = $facebook->getUser();
 $name = $facebook->api("/" . $user . "?fields=username");
-if ($_GET["action"] == "addPost") {
-    query("INSERT IGNORE INTO posts (userID,message,startTime,picture,link)VALUES ('" . $_SESSION['ID'] . "','" . mysql_escape_string($_GET['message']) . "','" . $_GET['publishdate'] . "','" . mysql_escape_string($_GET['picture']) . "','" . mysql_escape_string($_GET['link']) . "')");
-    echo "OK";
-}
-if ($_GET["action"] == "getComments") {
-    $result = query("SELECT postID,userID,username,text FROM comments,users where postID='" . $id . "' and comments.userID = users.id order by comments.ID");
-    if (!$result) {
-        echo $errors['DATABASE_CON'];
-        exit;
-    }
-    $get = '{ "comments":[';
-    while ($row = mysql_fetch_assoc($result)) {
-        $get = $get +  '{ "userID": "' . $row['userID'] . '", "postID": "' . $row['postID'] . '", "username": "' . $row['username'] . '", "text": "' . $row['text'] . '"},';
-    }
-    $get = substr($get, 0, -1);
-    $get = $get + "]}";
-    echo $get;
-}
-if ($_GET["action"] == "addComment") {
-    query("INSERT IGNORE INTO comments (postID,userID,text) VALUES ('" . $_GET['postID'] . "','" . $_SESSION['ID'] . "','" . mysql_escape_string($_GET['comment']) . "')");
-    echo "OK";
-}
-
-if ($_GET["action"] == "getPost") {
-    $result = query("SELECT * FROM posts where postID='" . $id . "'");
-
-    if (!$result) {
-        echo $errors['DATABASE_CON'];
-        exit;
-    }
-    $row = mysql_fetch_assoc($result);
-    echo '{ "message": "' . mysql_escape_string($row['message']) . '","startTime" :"' . $row['startTime'] . '","picture" :"' . mysql_escape_string($row['picture']) . '","link" :"' . mysql_escape_string($row['link']) . '"}';
-}
-
-if ($_GET["action"] == "updatePost") {
-    query("UPDATE posts SET message='" . $_GET["message"] . "',link='" . $_GET["link"] . "',picture='" . $_GET["picture"] . "',startTime='" . $_GET["publishdate"] . "' WHERE postID = '" . $id . "'");
-    echo "OK";
-}
 
 if ($_GET["action"] == "register") {
     if ($user) {
@@ -83,93 +44,5 @@ if ($_GET["action"] == "destroySession") {
     session_destroy();
     exit;
 }
-if ($_SESSION['role'] != "0") {
-    if ($_GET["action"] == "changeRole") {
-        query("UPDATE users SET role='" . $role . "' WHERE id = '" . $id . "'");
-        echo "OK";
-    }
-    if ($_GET["action"] == "delete") {
-        query("DELETE FROM users WHERE id = '" . $id . "'");
-        echo "OK";
-    }
-    if ($_GET["action"] == "add") {
-        try {
-            $id = $facebook->api('/' . $username . '?fields=id', 'GET');
-            $sites = $facebook->api('/' . $id['id'] . '/accounts', 'GET');
-        } catch (Exception $e) {
-            echo $errors['NOT_A_USER'];
-            exit;
-        }
-        $sites = $sites['data'];
-        $insert_pages = "INSERT INTO pages (userID,ID,pageNAME) VALUES ";
-        foreach ($sites as $value) {
-            $perms = $value['perms'];
-            foreach ($perms as $perm) {
-                if ($perm == "CREATE_CONTENT") {
-                    $insert_pages = $insert_pages . "('" . $id['id'] . "','" . $value['id'] . "','" . $value['name'] . "'),";
-                    break;
-                }
-            }
-        }
-        $insert_pages = substr($insert_pages, 0, -1);
-        query("INSERT INTO users VALUES ('" . $id['id'] . "','" . $role . "','" . $username . "')");
-        query($insert_pages, $link);
-        query("DELETE FROM register_notification WHERE userName='" . $username . "'");
-        echo "OK";
-    }
-    if ($_GET["action"] == "showPages") {
-        $result = query("SELECT * FROM pages WHERE userID='" . $id . "'");
-        $response = '{ "pages" : [';
-        if (mysql_num_rows($result) == 0) {
-            echo "{}";
-        } else {
-            while ($row = mysql_fetch_assoc($result)) {
-                $response = $response . '{ "pageName" : "' . $row['pageName'] . '", "pageID" : "' . $row['pageID'] . '", "userID" : "' . $row['userID'] . '"},';
-            }
-            $response = substr($response, 0, -1);
-            $response = $response . "]}";
-            echo $response;
-        }
-    }
-    if ($_GET["action"] == "addPage") {
-        try {
-            $page = $facebook->api("/" . $_GET["page"]);
-        } catch (Exception $e) {
-            echo $errors['NOT_A_PAGE'];
-            exit;
-        }
-        $result = query("SELECT * FROM pages WHERE userID='" . $id . "' and pageID='" . $page['id'] . "'");
-        if (mysql_num_rows($result) != 0) {
-            echo "OK";
-            exit;
-        }
-        if ($page['id'] != null) {
-            $result = query("INSERT IGNORE INTO pages (userID,pageID,pageNAME) VALUES ('" . $_GET["id"] . "','" . $page['id'] . "','" . $_GET["page"] . "')");
-            echo "OK";
-        } else {
-            echo $errors['NOT_A_PAGE'];
-            exit;
-        }
-    }
-    if ($_GET["action"] == "refresh") {
-        $sites = $facebook->api('/' . $id . '/accounts', 'GET');
-        $sites = $sites['data'];
-        foreach ($sites as $value) {
-            $perms = $value['perms'];
-            foreach ($perms as $perm) {
-                if ($perm == "CREATE_CONTENT") {
-                    if (mysql_num_rows(query("SELECT * FROM pages where userID='" . $id . "' AND pageID='" . $value['id'] . "'")) == 0) {
-                        $insert_pages = "INSERT IGNORE INTO pages (userID,pageID,pageNAME) VALUES ";
-                        $insert_pages = $insert_pages . "('" . $id . "','" . $value['id'] . "','" . $value['name'] . "')";
-                        query($insert_pages);
-                        break;
-                    }
-                }
-            }
-        }
-        echo "OK";
-    }
-} else {
-    exit;
-}
+
 ?>
