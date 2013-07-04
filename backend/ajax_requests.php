@@ -1,4 +1,5 @@
 <?php
+
 ini_set('display_errors', 'On');
 error_reporting(E_all || E_STRICT);
 require_once("../facebook-sdk/facebook.php");
@@ -44,5 +45,4 @@ if ($_GET["action"] == "destroySession") {
     session_destroy();
     exit;
 }
-
 ?>

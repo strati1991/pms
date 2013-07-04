@@ -46,7 +46,7 @@ if ($_SESSION['role'] != "0") {
             exit;
         }
         $sites = $sites['data'];
-        if(sizeof($sites)>0){
+        if (sizeof($sites) > 0) {
             $insert_pages = "INSERT IGNORE INTO pages (userID,ID,pageNAME) VALUES ";
             foreach ($sites as $value) {
                 $perms = $value['perms'];

@@ -1,4 +1,5 @@
 <?php
+
 function userRole($id) {
     $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
     if (!$link) {
@@ -45,4 +46,5 @@ function getUser($id) {
     }
     return $result;
 }
+
 ?>
