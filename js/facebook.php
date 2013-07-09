@@ -55,13 +55,13 @@ require_once("backend/config.php");
                 error('User cancelled login or did not fully authorize.');
                 load("welcome");
             }
-        }, {scope: 'email,manage_pages'});
+        }, {scope: "<?= $config['scope'] ?>"});
     }
     function updateUserAndMenu() {
-        ajaxFAPI("/me?fields=picture.height(24).width(24),name&access_token=" + accessToken, true, function(response) {
+        helper.ajaxFAPI("/me?fields=picture.height(24).width(24),name&access_token=" + accessToken, true, function(response) {
             var _response = $.parseJSON(response);
-            createSession(function(response) {
-                handleError(response, function() {
+            helper.createSession(function(response) {
+                helper.handleError(response, function() {
                     response = $.parseJSON(response);
                     if (parseInt(response.role) > 0) {
                         $("#admin-users-button").show();
@@ -74,15 +74,17 @@ require_once("backend/config.php");
                     $("#notification-button").show();
                     $("#nav").fadeIn();
                     $("#user-info").fadeIn();
-                    load("welcome");
+                    $("#calendar-button").fadeIn();
+                    helper.getNotifications();
+                    helper.load("welcome");
                 });
             });
         });
     }
     function logout() {
         FB.logout(function(response) {
-            deleteCookie();
-            destroySession(reloadPage());
+            helper.deleteCookie();
+            helper.destroySession(reloadPage());
         });
     }
 </script>

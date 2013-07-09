@@ -12,10 +12,10 @@ if ($_SESSION['role'] == "0") {
         <?php
         if ($_SESSION['role'] > 0) {
             ?>
-            <button class="btn" style="float:right" onclick="refresh('<?= $_SESSION['ID'] ?>');">Meine Seiten aktualisieren</button>
+            <button class="btn" style="float:right" onclick="users.refreshUsers('<?= $_SESSION['ID'] ?>');">Meine Seiten aktualisieren</button>
         <?php }
         ?>
-        <button class="btn" style="float:right" onclick="addUser()">User hinzufügen</button>
+        <button class="btn" style="float:right" onclick="users.addUser()">User hinzufügen</button>
         <h1>Administer Users</h1>
     </div>
 
@@ -37,8 +37,8 @@ if ($_SESSION['role'] == "0") {
                     <td style="text-align: center;padding-top:0">
                         <div class="btn-toolbar">
                             <div class="btn-group">
-                                <button class="btn" onclick="del('<?= $row['id'] ?>');">Löschen</button>
-                                <button class="btn" onclick="changeRole('<?= $row['id'] ?>');">Rolle ändern</button>
+                                <button class="btn" onclick="users.deleteUsers('<?= $row['id'] ?>');">Löschen</button>
+                                <button class="btn" onclick="users.changeRole('<?= $row['id'] ?>');">Rolle ändern</button>
                             </div>
 
                         </div>
@@ -59,7 +59,7 @@ if ($_SESSION['role'] == "0") {
                     <td style="text-align: center;padding-top:0">
                         <div class="btn-toolbar">
                             <div class="btn-group">
-                                <button class="btn" onclick="showPages('<?= $row['id'] ?>');">Seiten</button>
+                                <button class="btn" onclick="users.showPages('<?= $row['id'] ?>');">Seiten</button>
                             </div>
                         </div>
                     </td>
@@ -125,165 +125,7 @@ if ($_SESSION['role'] == "0") {
             ?>
         </select>
     </div>
-    <script type="text/javascript">
-                view.init = function() {
-                    $('#userlist').dataTable({
-                        "bPaginate": true,
-                        "bLengthChange": true,
-                        "bFilter": true,
-                        "bSort": true,
-                        "bInfo": true,
-                        "bAutoWidth": true,
-                        "fnInitComplete": function() {
-                            $('#userlist').fadeIn();
-                        }
-                    });
-                };
-                function addPage(id) {
-                    $("#new-page-error").hide();
-                    showModal({
-                        content: $("#add-pages").html(),
-                        saveLabel: "hinzufügen",
-                        title: "Seite hinzufügen",
-                        saveFunction: function() {
-                            if ($("#modal-dialog #new-page").val() == "") {
-                                $("#modal-dialog #new-page-error").show();
-                                return;
-                            }
-                            var pages = "";
-                            $.each($("#modal-dialog #multiselect option:selected"), function() {
-                                pages = pages + $(this).attr("value") + ",";
-                            });
-                            pages = pages.substr(0, pages.length - 1);
-                            $("#loading-screen").fadeIn();
-                            $.ajax({
-                                url: "backend/ajax_users.php?action=addPages",
-                                data: {
-                                    id: id,
-                                    pages: escape(pages)
-                                }
-                            }).done(function(response) {
-                                handleError(response, function() {
-                                    $("#loading-screen").fadeOut();
-                                    $('#modal-dialog').modal('hide');
-                                });
-                            });
-                        }
-                    });
-                }
-
-                function del(id) {
-                    showModal({
-                        content: $("#delete-dialog").html(),
-                        saveLabel: "löschen",
-                        title: "User löschen",
-                        saveFunction: function() {
-                            $.ajax({
-                                url: "backend/ajax_users.php?action=delete&id=" + id,
-                                success: function(data) {
-                                    if (data == "OK") {
-                                        $('#modal-dialog').modal('hide');
-                                        load("adminUsers");
-                                    } else {
-                                        handleError(data);
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-                function changeRole(id) {
-                    $("#select-role-change .active").removeClass();
-                    $(".modal-username").html($("#name_" + id).html());
-                    $("#select-role-change").find("[value=" + $("#role_" + id).attr("data-role") + "]").addClass("active");
-                    showModal({
-                        content: $("#change-dialog").html(),
-                        saveLabel: "Ja",
-                        title: "Userrolle ändern",
-                        saveFunction: function() {
-                            $.ajax({
-                                url: "backend/ajax_users.php?action=changeRole&id=" + id + "&role=" + $("#modal-dialog #select-role-change .active").val(),
-                                success: function(data) {
-                                    if (data == "OK") {
-                                        $('#modal-dialog').modal('hide');
-                                        load("adminUsers");
-                                    } else {
-                                        handleError(data);
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-                function addUser() {
-                    $("#modal-dialog #modal-facebook-name-error").hide();
-                    $("#modal-dialog #select-role-add-error").hide();
-                    showModal({
-                        content: $("#add-dialog").html(),
-                        saveLabel: "hinzufügen",
-                        title: "User hinzufügen",
-                        saveFunction: function() {
-                            if ($("#modal-dialog #modal-facebook-name").val() === "") {
-                                $("#modal-dialog #modal-facebook-name-error").show();
-                                return;
-                            }
-                            if (!$("#modal-dialog #select-role-add .active").length) {
-                                $("#modal-dialog #select-role-add-error").show();
-                                return;
-                            }
-                            $("#loading-screen").fadeIn();
-                            $.ajax({
-                                url: "backend/ajax_users.php?action=add&username=" + $("#modal-dialog #modal-facebook-name").val() + "&role=" + $("#modal-dialog #select-role-add .active").val(),
-                                success: function(data) {
-                                    $("#loading-screen").fadeOut();
-                                    if (data == "OK") {
-                                        $('#modal-dialog').modal('hide');
-                                        load("adminUsers");
-                                    } else {
-                                        handleError(data);
-                                    }
-                                }
-                            })
-                        }
-                    });
-
-                }
-                function showPages(id) {
-                    $("#loading-screen").fadeIn();
-                    $("#add-page-button").attr("onclick", "addPage(" + id + ");");
-                    $(".modal-username").html($("#name_" + id).html());
-                    $.ajax({
-                        url: "backend/ajax_users.php?action=showPages&id=" + id,
-                        dataType: "json",
-                        success: function(data) {
-                            var pages = "";
-                            if (data.pages !== undefined) {
-                                $.each(data.pages, function(index, value) {
-                                    pages = pages + '<li><a target="_blank" href="https://www.facebook.com/' + value.pageID + '">' + value.pageName + '</a></li>';
-                                });
-                            }
-                            $("#pages-list").html(pages);
-                            $("#loading-screen").fadeOut();
-                            showModal({
-                                content: $("#show-pages").html(),
-                                title: "Seiten",
-                                saveLabel: "Schließen",
-                                hideCloseButton: true
-                            });
-                        }
-                    });
-                }
-                function refresh(id) {
-                    $("#loading-screen").fadeIn();
-                    $.ajax("backend/ajax_users.php?action=refresh&id=" + id).done(function() {
-                        $("#loading-screen").hide();
-                        showPages(id);
-                    });
-                }
-                function refreshPage() {
-                    load("adminUsers");
-                }
-    </script>
+    <script type="text/javascript" src="js/adminUsers.js"></script>
     <?php
 }
 ?>
