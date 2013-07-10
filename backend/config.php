@@ -17,4 +17,7 @@ $notifications['comment'] = '1';
 $notifications['post_deletet'] = '2';
 $notifications['post_added'] = '3';
 $notifications["post_updated"] = '4';
+$status[0] = "noch nicht angesehen";
+$status[1] = "korrektur";
+$status[2] = "freigegeben";
 ?>

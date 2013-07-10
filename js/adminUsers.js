@@ -1,20 +1,33 @@
 view.init = function() {
-    $('#userlist').dataTable({
-        "bPaginate": true,
-        "bLengthChange": true,
-        "bFilter": true,
-        "bSort": true,
-        "bInfo": true,
-        "bAutoWidth": true,
-        "fnInitComplete": function() {
-            $('#userlist').fadeIn();
-        }
-    });
+    var script1 = $.getScript("js/vendor/bootstrap-multiselect.js"),
+        script2 = $.getScript("js/vendor/jquery.dataTables.min.js");
+    $.when(script1, script2).done(function(result2, result1) {
+        $('#userlist').dataTable({
+            "bPaginate": true,
+            "bLengthChange": true,
+            "bFilter": true,
+            "bSort": true,
+            "bInfo": true,
+            "bAutoWidth": true,
+            "fnInitComplete": function() {
+                $('#userlist').fadeIn();
+            }
+        });
+        $('.has-tooltip-bottom').tooltip({
+            placement: 'bottom',
+            html: true
+        });
+        $('.has-tooltip-left').tooltip({
+            placement: 'left',
+            html: true
+        });
+    })
+
 };
 var users = {
     addPage: function(id) {
         $("#new-page-error").hide();
-        showModal({
+        helper.showModal({
             content: $("#add-pages").html(),
             saveLabel: "hinzufügen",
             title: "Seite hinzufügen",
@@ -36,7 +49,7 @@ var users = {
                         pages: escape(pages)
                     }
                 }).done(function(response) {
-                    handleError(response, function() {
+                    helper.handleError(response, function() {
                         helper.finished()
                         $('#modal-dialog').modal('hide');
                     });
@@ -45,7 +58,7 @@ var users = {
         });
     },
     deleteUser: function(id) {
-        showModal({
+        helper.showModal({
             content: $("#delete-dialog").html(),
             saveLabel: "löschen",
             title: "User löschen",
@@ -55,9 +68,9 @@ var users = {
                     success: function(data) {
                         if (data == "OK") {
                             $('#modal-dialog').modal('hide');
-                            load("adminUsers");
+                            helper.load("adminUsers");
                         } else {
-                            handleError(data);
+                            helper.handleError(data);
                         }
                     }
                 });
@@ -65,7 +78,7 @@ var users = {
         });
     },
     changeRole: function(id) {
-        showModal({
+        helper.showModal({
             content: $("#change-dialog").html(),
             saveLabel: "Ja",
             title: "Userrolle ändern",
@@ -80,9 +93,9 @@ var users = {
                     success: function(data) {
                         if (data == "OK") {
                             $('#modal-dialog').modal('hide');
-                            load("adminUsers");
+                            helper.load("adminUsers");
                         } else {
-                            handleError(data);
+                            helper.handleError(data);
                         }
                     }
                 });
@@ -90,7 +103,7 @@ var users = {
         });
     },
     addUser: function() {
-        showModal({
+        helper.showModal({
             content: $("#add-dialog").html(),
             saveLabel: "hinzufügen",
             title: "User hinzufügen",
@@ -114,9 +127,9 @@ var users = {
                         $("#loading-screen").fadeOut();
                         if (data == "OK") {
                             $('#modal-dialog').modal('hide');
-                            load("adminUsers");
+                            helper.load("adminUsers");
                         } else {
-                            handleError(data);
+                            helper.handleError(data);
                         }
                     }
                 })
@@ -124,25 +137,32 @@ var users = {
         });
 
     },
-    showPages: function(id) {
+    showPages: function(id,role) {
+        helper.loading();
         $.ajax({
             url: "backend/ajax_users.php?action=showPages&id=" + id,
             dataType: "json",
-            preShowfunction :function(){
-                helper.loading()
-                $("#add-page-button").attr("onclick", "addPage(" + id + ");");
-                $(".modal-username").html($("#name_" + id).html());
-            },
             success: function(data) {
-                var pages = "";
-                if (data.pages !== undefined) {
-                    $.each(data.pages, function(index, value) {
-                        pages = pages + '<li><a target="_blank" href="https://www.facebook.com/' + value.pageID + '">' + value.pageName + '</a></li>';
-                    });
-                }
-                $("#pages-list").html(pages);
-                helper.finished()
-                showModal({
+                helper.showModal({
+                    preShowFunction: function() {
+                        var pages = "";
+                        if (data.pages !== undefined) {
+                            $.each(data.pages, function(index, value) {
+                                pages = pages + '<li><a target="_blank" href="https://www.facebook.com/' + value.pageID + '">' + value.pageName + '</a></li>';
+                            });
+                        }
+                        $("#modal-dialog #pages-list").html(pages);
+                        if(role === 0){
+                            $("#modal-dialog #add-page-button").attr("onclick", "users.addPage(" + id + ");");
+                            $("#modal-dialog #add-page-button").show();
+                            $("#modal-dialog #modal-role").text("publizieren");
+                        } else {
+                            $("#modal-dialog #add-page-button").hide();
+                             $("#modal-dialog #modal-role").text("freigeben/publizieren");
+                        }  
+                        $("#modal-dialog .modal-username").html($("#name_" + id).html());
+                        helper.finished()
+                    },
                     content: $("#show-pages").html(),
                     title: "Seiten",
                     saveLabel: "Schließen",
@@ -155,10 +175,10 @@ var users = {
         $("#loading-screen").fadeIn();
         $.ajax("backend/ajax_users.php?action=refresh&id=" + id).done(function() {
             helper.finished();
-            this.showPages(id);
+            users.showPages(id);
         });
     },
     refreshPage: function() {
-        load("adminUsers");
+        helper.load("adminUsers");
     }
-}
+};

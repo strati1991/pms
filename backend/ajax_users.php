@@ -15,7 +15,8 @@ $facebook = new Facebook($config);
 $user = $facebook->getUser();
 $name = $facebook->api("/" . $user . "?fields=username");
 
-if ($_SESSION['role'] != "0") {
+//  --------- Root actions ---------
+if ($_SESSION['role'] > "1") {
     if ($_GET["action"] == "changeRole") {
         query("UPDATE users SET role='" . $role . "' WHERE id = '" . $id . "'");
         echo "OK";
@@ -64,20 +65,6 @@ if ($_SESSION['role'] != "0") {
         query("DELETE FROM register_notification WHERE userName='" . $username . "'");
         echo "OK";
     }
-    if ($_GET["action"] == "showPages") {
-        $result = query("SELECT * FROM pages WHERE userID='" . $id . "'");
-        $response = '{ "pages" : [';
-        if (mysql_num_rows($result) == 0) {
-            echo "{}";
-        } else {
-            while ($row = mysql_fetch_assoc($result)) {
-                $response = $response . '{ "pageName" : "' . $row['pageName'] . '", "pageID" : "' . $row['pageID'] . '", "userID" : "' . $row['userID'] . '"},';
-            }
-            $response = substr($response, 0, -1);
-            $response = $response . "]}";
-            echo $response;
-        }
-    }
     if ($_GET["action"] == "addPage") {
         try {
             $page = $facebook->api("/" . $_GET["page"]);
@@ -98,6 +85,7 @@ if ($_SESSION['role'] != "0") {
             exit;
         }
     }
+
     if ($_GET["action"] == "refresh") {
         $sites = $facebook->api('/' . $id . '/accounts', 'GET');
         $sites = $sites['data'];
@@ -117,7 +105,22 @@ if ($_SESSION['role'] != "0") {
         }
         echo "OK";
     }
-} else {
-    exit;
+}
+//  --------- Root/Community Manager actions ---------
+if ($_SESSION['role'] > "0") {
+    if ($_GET["action"] == "showPages") {
+        $result = query("SELECT * FROM pages WHERE userID='" . $id . "'");
+        $response = '{ "pages" : [';
+        if (mysql_num_rows($result) == 0) {
+            echo "{}";
+        } else {
+            while ($row = mysql_fetch_assoc($result)) {
+                $response = $response . '{ "pageName" : "' . $row['pageName'] . '", "pageID" : "' . $row['pageID'] . '", "userID" : "' . $row['userID'] . '"},';
+            }
+            $response = substr($response, 0, -1);
+            $response = $response . "]}";
+            echo $response;
+        }
+    }
 }
 ?>

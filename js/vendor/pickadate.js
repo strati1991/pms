@@ -743,7 +743,7 @@
                         dateToSelect = targetData.date.split( '/' )
 
                         // Set the date and then close the calendar
-                        dateClicked(dateToSelect[ 0 ] +"/" + dateToSelect[ 1 ] + "/" + dateToSelect[ 2 ] );
+                        calendar.dateClicked(dateToSelect[ 0 ] +"/" + dateToSelect[ 1 ] + "/" + dateToSelect[ 2 ] );
                     }
 
                 }), // $HOLDER
@@ -1422,7 +1422,7 @@
 
                 // Update the calendar items
                 CALENDAR.items = getUpdatedCalendarItems()
-                refreshCal();
+                calendar.refreshCal();
                 // Trigger the onRender method within scope of the picker
                 triggerFunction( SETTINGS.onRender, P )
             } //calendarRender

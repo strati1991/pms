@@ -41,15 +41,6 @@ a{
 #user-info{
     display:none;
 }
-#message{
-    max-width: 98%;
-    width: 98%;
-}
-.modal ul{
-    border-bottom: 1px solid grey;
-    padding: 10px 0 10px 0;
-    border-top: 1px solid grey;
-}
 #notification-button{
     width: 2px;
     height: 10px;
@@ -76,8 +67,7 @@ a{
     padding: 5px;
     background-color: #edeff4;
     border: 1px solid white;
-    width: 80%;
-    margin:5px 40px 5px auto;
+    margin:5px 0;
 }
 .comment p{
     color:#3b5998;
@@ -111,14 +101,6 @@ a{
     width: 97%;
     max-width:97%;
 }
-#comments{
-    border-top: 2px solid grey;
-    margin-top: 10px;
-    padding-top: 10px;
-}
-#pages ul{
-    border:none;
-}
 #date-pages{
     text-align: center;
     top: 300px;
@@ -128,13 +110,29 @@ a{
     border: 1px solid #ccc;
 }
 #date-pages li{
-    padding:5px;
     display:block;
     margin: 10px 0;
     font-size: 16px;
     color:black;
     cursor: pointer;
 }
-#date-pages li:hover{
-    background-color: #3a87ad;
+li .icon-arrow-right{
+    margin-right: 10px;
+}
+.text-error:hover{
+    color: #3a87ad;
+}
+th.hidable, td.hidable{
+    display:none;
+}
+@media (min-width: 1200px){
+    th.hidable, td.hidable{
+        display:table-cell;
+    }
+}
+#message{
+    max-width: 300px;
+}
+.bootstrap-datetimepicker-widget{
+    z-index:100000;
 }

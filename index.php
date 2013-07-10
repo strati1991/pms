@@ -14,15 +14,15 @@ require_once("backend/database_functions.php");
         <title>PMS</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <link href="css/bootstrap.min.css" type="text/css" rel="stylesheet" media="screen"/>
-        <link href="css/bootstrap-responsive.min.css" type="text/css" rel="stylesheet"/>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="screen"/>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.min.css" />
         <link rel="stylesheet" href="css/jquery.fileupload-ui.css"/>
         <link rel="stylesheet" type="text/css" href="css/flick/jquery-ui.min.css"/>
         <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"/>
-        <link href="css/stylesheet.css" type="text/css" rel="stylesheet" media="screen"/>
-        <link href="css/jquery.dataTables.css" type="text/css" rel="stylesheet"/>
-        <link href="css/datepicker.css" type="text/css" rel="stylesheet"/>
-        <link href="css/bootstrap-multiselect.css" type="text/css" rel="stylesheet"/>
+        <link rel="stylesheet" type="text/css" href="css/stylesheet.css" media="screen"/>
+        <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css" />
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-datetimepicker.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-multiselect.css"  />
         <link rel="stylesheet" type="text/css" href="css/jquery.pnotify.default.css" />
     </head>
     <body data-twttr-rendered="true">
@@ -79,7 +79,7 @@ require_once("backend/database_functions.php");
             </div>
         </div>
         <div id="notifications" style="display:none">
-            
+
         </div>
         <div id="loading-screen">
             <div id="loading-icon">
@@ -101,20 +101,23 @@ require_once("backend/database_functions.php");
         <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>');</script>
         <script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-        <script type="text/javascript" src="js/vendor/jquery.dataTables.min.js"></script>
         <script type="text/javascript" src="js/vendor/bootstrap.min.js"></script>
-        <script type="text/javascript" src="js/vendor/bootstrap-datepicker.js"></script>
-        <script type="text/javascript" src="js/vendor/bootstrap-multiselect.js"></script>
         <script type="text/javascript" src="js/vendor/jquery.pnotify.min.js"></script>
         <?php
-            require_once("js/helper.php");
-            require_once("js/facebook.php");
+        require_once("js/helper.php");
+        require_once("js/facebook.php");
         ?>
         <script>
             //init
-            $("#close").bind("click", function() {
-                $('#modal-dialog').modal('hide');
-            });
+            $(function() {
+                $.ajaxSetup({
+                    cache: true
+                });
+                $("#close").bind("click", function() {
+                    $('#modal-dialog').modal('hide');
+                });
+            })
+
             function addNewUser(username) {
                 helper.load("adminUsers", function() {
                     users.addUser();

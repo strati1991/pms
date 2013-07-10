@@ -13,6 +13,7 @@ $role = $_GET["role"];
 $facebook = new Facebook($config);
 $user = $facebook->getUser();
 $facebook->setFileUploadSupport(true);
+//  --------- Root/Community Manager actions ---------
 if ($role != "0") {
     if ($_GET["action"] == "releasePost") {
         $post = query("SELECT DISTINCT * FROM posts where postID ='" . $id . "'");
@@ -42,7 +43,9 @@ if ($role != "0") {
         }
         if ($row['startTime'] && strtotime($row['startTime']) != "") {
             $post_data['published'] = 'false';
-            $post_data['scheduled_publish_time'] = strtotime($row['startTime']);
+            $date = date_parse_from_format('Y-d-m H:i:s', $row['startTime']);
+            $time = mktime($date['hour'], $date['minute'], $date['second'], $date['month'], $date['day'], $date['year']);
+            $post_data['scheduled_publish_time'] = $time;
         }
         if ($row['picture']) {
             $post_data['source'] = $row['picture'];
@@ -60,9 +63,9 @@ if ($role != "0") {
             $facebook->setAccessToken($access_tokens[$row['pageID']]);
             if ($post_data['source']) {
                 $args = array(
-                        'url' => 'http://pms.social-media-hosting.com/' . $post_data['source'],
-                        'message' => $post_data['message']
-                    );
+                    'url' => 'http://pms.social-media-hosting.com/' . $post_data['source'],
+                    'message' => $post_data['message']
+                );
                 try {
                     $data = $facebook->api('/' . $row['pageID'] . '/photos', 'post', $args);
                 } catch (FacebookApiException $e) {
@@ -83,7 +86,13 @@ if ($role != "0") {
         }
         echo "OK";
     }
+    if ($_GET["action"] == "statusPost") {
+        query("UPDATE posts SET status='" . mysql_escape_string($_GET["status"]) . "' WHERE postID = '" . $id . "' LIMIT 1");
+        echo "OK";
+        exit;
+    }
 }
+//  --------- everybody ---------
 if ($_GET["action"] == "addPost") {
     query("INSERT IGNORE INTO posts (lastChanged,userID,message,startTime,picture,link) " .
             "VALUES (" .
@@ -105,11 +114,7 @@ if ($_GET["action"] == "addPost") {
     notificate($row['postID'], $notifications["post_added"], substr($_GET['message'], 0, 10) . "... vom " . $row['lastChanged']);
     echo "OK";
 }
-if ($_GET["action"] == "statusPost") {
-    query("UPDATE posts SET status='" . mysql_escape_string($_GET["status"]) . "' WHERE postID = '" . $id . "' LIMIT 1");
-    echo "OK";
-    exit;
-}
+
 if ($_GET["action"] == "getPostByDate") {
     $date = str_replace("/", "-", $_GET["date"]);
     $sql = "SELECT *" .
@@ -244,17 +249,19 @@ if ($_GET["action"] == "addComment") {
     echo "OK";
 }
 if ($_GET["action"] == "deleteComment") {
-    query("DELETE FROM comments where ID='" . $id . "'");
-    echo "OK";
+        query("DELETE FROM comments where ID='" . $id . "' and userID = '" . $_SESSION['ID'] ."'");
+        echo "OK";
 }
 if ($_GET["action"] == "deletePost") {
     $result = query("SELECT *  FROM posts WHERE postID=" . $id);
     $row = mysql_fetch_assoc($result);
-    notificate($id, $notifications["post_deletet"], substr($row['message'], 0, 10) . "... vom " . $row['lastChanged']);
-    query("DELETE FROM posts where postID='" . $id . "'");
-    query("DELETE FROM posts_on_pages WHERE postID='" . $id . "'");
-    query("DELETE FROM comments WHERE postID='" . $id . "'");
-    echo "OK";
+    if ($_SESSION['ID'] == $row['userID']) {
+        notificate($id, $notifications["post_deletet"], substr($row['message'], 0, 10) . "... vom " . $row['lastChanged']);
+        query("DELETE FROM posts where postID='" . $id . "'");
+        query("DELETE FROM posts_on_pages WHERE postID='" . $id . "'");
+        query("DELETE FROM comments WHERE postID='" . $id . "'");
+        echo "OK";
+    }
 }
 if ($_GET["action"] == "getPost") {
     $result = query("SELECT * FROM posts where postID='" . $id . "'");
@@ -272,31 +279,35 @@ if ($_GET["action"] == "getPost") {
 }
 
 if ($_GET["action"] == "updatePost") {
-    if ($_GET["message"] != "undefined" && $_GET["link"] != "undefined" && $_GET["picture"] != "undefined") {
-        query("UPDATE posts SET " .
-                "status=0," .
-                "lastChanged=NOW()," .
-                "message='" . $_GET["message"] . "'," .
-                "link='" . $_GET["link"] . "'," .
-                "picture='" . $_GET["picture"] . "'," .
-                "startTime='" . $_GET["publishdate"] . "'" .
-                "WHERE postID = '" . $id . "'");
-        if ($_GET["pages"] != "") {
-            query("DELETE FROM posts_on_pages WHERE postID='" . $id . "'");
-            $pages = split(",", urldecode($_GET["pages"]));
-            for ($i = 0; $i < sizeof($pages); $i++) {
-                query("INSERT IGNORE INTO posts_on_pages (postID,pageID,userID) " .
-                        "VALUES (" .
-                        "'" . $id . "'," .
-                        "'" . $pages[$i] . "'," .
-                        "'" . $user . "'" .
-                        ")");
+    $result = query("SELECT *  FROM posts WHERE postID=" . $id);
+    $row = mysql_fetch_assoc($result);
+    if ($_SESSION['ID'] == $row['userID']) {
+        if ($_GET["message"] != "undefined" && $_GET["link"] != "undefined" && $_GET["picture"] != "undefined") {
+            query("UPDATE posts SET " .
+                    "status=0," .
+                    "lastChanged=NOW()," .
+                    "message='" . $_GET["message"] . "'," .
+                    "link='" . $_GET["link"] . "'," .
+                    "picture='" . $_GET["picture"] . "'," .
+                    "startTime='" . $_GET["publishdate"] . "'" .
+                    "WHERE postID = '" . $id . "'");
+            if ($_GET["pages"] != "") {
+                query("DELETE FROM posts_on_pages WHERE postID='" . $id . "'");
+                $pages = split(",", urldecode($_GET["pages"]));
+                for ($i = 0; $i < sizeof($pages); $i++) {
+                    query("INSERT IGNORE INTO posts_on_pages (postID,pageID,userID) " .
+                            "VALUES (" .
+                            "'" . $id . "'," .
+                            "'" . $pages[$i] . "'," .
+                            "'" . $user . "'" .
+                            ")");
+                }
             }
+            notificate($id, $notifications["post_updated"], substr($row['message'], 0, 10) . "... vom " . $row['lastChanged']);
+            echo "OK";
+            exit;
         }
-        notificate($id, $notifications["post_updated"], substr($row['message'], 0, 10) . "... vom " . $row['lastChanged']);
         echo "OK";
-        exit;
     }
-    echo "OK";
 }
 ?>

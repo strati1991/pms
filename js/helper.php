@@ -6,12 +6,11 @@ require_once("backend/config.php");
         }};
     var helper = {
         loading : function(){
-            $("#content").hide()
             $("#loading-screen").show();
         },
         finished : function(){
+            $("#content").show();
             $("#loading-screen").fadeOut();
-            $("#content").show()
         },        
         load: function(page, callback) {
             helper.loading()

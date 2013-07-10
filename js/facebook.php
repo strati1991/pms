@@ -53,7 +53,7 @@ require_once("backend/config.php");
                 updateUserAndMenu();
             } else {
                 error('User cancelled login or did not fully authorize.');
-                load("welcome");
+                helper.load("welcome");
             }
         }, {scope: "<?= $config['scope'] ?>"});
     }
