@@ -22,12 +22,12 @@ require_once("backend/config.php");
                 $('#login-button').hide()
                 $('#logout-button').show();
             } else if (response.status === 'not_authorized') {
-                load("welcome");
+                helper.load("welcome");
                 $("#loading-screen").fadeOut();
                 $('#login-button').show()
                 $('#logout-button').hide();
             } else {
-                load("welcome");
+                helper.load("welcome");
                 $("#loading-screen").fadeOut();
                 $('#login-button').show()
                 $('#logout-button').hide();
@@ -84,7 +84,7 @@ require_once("backend/config.php");
     function logout() {
         FB.logout(function(response) {
             helper.deleteCookie();
-            helper.destroySession(reloadPage());
+            helper.destroySession(helper.reloadPage());
         });
     }
 </script>

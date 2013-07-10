@@ -17,7 +17,6 @@ require_once("backend/config.php");
             $.ajax("/views/" + page + ".php").done(function(response) {
                 $("#content").html(response);
                 view.init();
-                helper.finished()
                 if (callback) {
                     callback();
                 }
@@ -154,13 +153,13 @@ require_once("backend/config.php");
                             if (value.type == <?= $notifications['comment'] ?>) {
                                 $.pnotify({
                                     title: 'Neue Kommentar',
-                                    text: "<a href='#' class='notification-link' onclick='showPost(" + value.dataID + ")'>Neuer Kommentar von " + value.dataText + "</a>",
+                                    text: "<a href='#' class='notification-link' onclick='posts.showPost(" + value.dataID + ")'>Neuer Kommentar von " + value.dataText + "</a>",
                                 });
                             }
                             if (value.type == <?= $notifications['post_added'] ?>) {
                                 $.pnotify({
                                     title: 'Neue Post',
-                                    text: "<a href='#'  class='notification-link' onclick='showPost(" + value.dataID + ")'>Neuer Post " + value.dataText + "</a>",
+                                    text: "<a href='#'  class='notification-link' onclick='posts.showPost(" + value.dataID + ")'>Neuer Post " + value.dataText + "</a>",
                                 });
                             }
                             if (value.type == <?= $notifications['post_deletet'] ?>) {
@@ -168,11 +167,11 @@ require_once("backend/config.php");
                                     title: 'Post wurde gelöscht',
                                     text: "Post " + value.dataText + " wurde gelöscht",
                                 });
-                            }
+                            }s
                             if (value.type == <?= $notifications['post_updated'] ?>) {
                                 $.pnotify({
                                     title: 'Post wurde verändert',
-                                    text: "<a href='#'  class='notification-link' onclick='showPost(" + value.dataID + ")'>Post " + value.dataText + " wurde verändert </a>",
+                                    text: "<a href='#'  class='notification-link' onclick='posts.showPost(" + value.dataID + ")'>Post " + value.dataText + " wurde verändert </a>",
                                 });
 
                             }

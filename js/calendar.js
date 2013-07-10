@@ -4,6 +4,7 @@ view.init = function() {
         var picker = $('#calendar').pickadate();
         picker.click();
         calendar.refreshCal();
+        helper.finished();
     });
 };
 var calendar = {

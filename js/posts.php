@@ -23,6 +23,7 @@ header("Content-Type: text/javascript; charset=UTF-8");
                 "bAutoWidth": true,
                 "fnInitComplete": function() {
                     $('#postlist').fadeIn();
+                    helper.finished();
                 }
             });
             $('.has-tooltip-bottom').tooltip({
@@ -369,17 +370,15 @@ header("Content-Type: text/javascript; charset=UTF-8");
         },
         uploadImage: function() {
             $('#modal-dialog #fileupload').fileupload({
-                url: "backend/ajax_requests.php?action=uploadImage",
+                url: "/backend/ajax_requests.php?action=uploadImage",
                 dataType: 'json',
+                forceIframeTransport: true,
                 done: function(e, data) {
                     $('#modal-dialog #picture-preview').attr("src", data.result.files[0].url);
                     $("#modal-dialog #link").val("");
                     $("#modal-dialog #link").attr('disabled', '');
-                },
-                progressall: function(e, data) {
-                    $('#modal-dialog #picture-preview').attr("src", "/img/ajax-loader.gif");
                 }
-            });
+            })
         },
         uploadYoutube: function() {
             $('#modal-dialog #youtube-link').fileupload({

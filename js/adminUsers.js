@@ -11,6 +11,7 @@ view.init = function() {
             "bAutoWidth": true,
             "fnInitComplete": function() {
                 $('#userlist').fadeIn();
+                helper.finished();
             }
         });
         $('.has-tooltip-bottom').tooltip({

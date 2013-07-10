@@ -48,7 +48,7 @@ if ($role != "0") {
             $post_data['scheduled_publish_time'] = $time;
         }
         if ($row['picture']) {
-            $post_data['source'] = $row['picture'];
+            $post_data['url'] = 'http://pms.social-media-hosting.com/' . $row['picture'];
         }
         if ($row['link']) {
             $post_data['link'] = $row['link'];
@@ -61,13 +61,9 @@ if ($role != "0") {
         }
         while ($row = mysql_fetch_assoc($pages)) {
             $facebook->setAccessToken($access_tokens[$row['pageID']]);
-            if ($post_data['source']) {
-                $args = array(
-                    'url' => 'http://pms.social-media-hosting.com/' . $post_data['source'],
-                    'message' => $post_data['message']
-                );
+            if ($post_data['url']) {
                 try {
-                    $data = $facebook->api('/' . $row['pageID'] . '/photos', 'post', $args);
+                    $data = $facebook->api('/' . $row['pageID'] . '/photos', 'post', $post_data);
                 } catch (FacebookApiException $e) {
                     echo $e->getMessage();
                     exit;
@@ -224,14 +220,14 @@ function notificate($postID, $type, $dataText) {
                      ) AS post_pages ON pages.pageID = post_pages.pageID
                  ) AS users_with_page
             JOIN users ON users.id = users_with_page.userID
-            WHERE role >0 and userID <> '" . $user . "'");
+            WHERE role >0 and userID <> '" . $_SESSION['ID']. "'");
     while ($row = mysql_fetch_assoc($result)) {
-        query("INSERT IGNORE INTO `notifications`(`for`, `type`, `dataID`,`dataText`) " +
+        query("INSERT IGNORE INTO `notifications`(`for`, `type`, `dataID`,`dataText`) " .
                 "VALUES (" .
                 $row['userID'] . "," .
                 $type . "," .
                 $postID . "," .
-                "'" . mysql_real_escape_string($dataText) . "," .
+                "'" . mysql_real_escape_string($dataText) . "'" .
                 ")");
     }
 }
@@ -281,7 +277,7 @@ if ($_GET["action"] == "getPost") {
 if ($_GET["action"] == "updatePost") {
     $result = query("SELECT *  FROM posts WHERE postID=" . $id);
     $row = mysql_fetch_assoc($result);
-    if ($_SESSION['ID'] == $row['userID']) {
+    if ($_SESSION['ID'] == $row['userID'] || $_SESSION['role'] > 0) {
         if ($_GET["message"] != "undefined" && $_GET["link"] != "undefined" && $_GET["picture"] != "undefined") {
             query("UPDATE posts SET " .
                     "status=0," .

@@ -66,6 +66,7 @@
             // The paste target element(s), by the default the complete document.
             // Set to null to disable paste support:
             pasteZone: $(document),
+            
             // The file input field(s), that are listened to for change events.
             // If undefined, it is set to the file input fields inside
             // of the widget element on plugin initialization.
@@ -239,7 +240,8 @@
             // The following are jQuery ajax settings required for the file uploads:
             processData: false,
             contentType: false,
-            cache: false
+            cache: false,
+            iframe: true
         },
 
         // A list of options that require reinitializing event listeners and/or
