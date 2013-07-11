@@ -24,7 +24,8 @@ table.dataTable tfoot th {
 }
 
 table.dataTable td {
-    padding: 3px 0;
+    padding-right: 0px;
+    padding-left: 0px;
     text-align: center;
 }
 

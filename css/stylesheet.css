@@ -136,3 +136,30 @@ th.hidable, td.hidable{
 .bootstrap-datetimepicker-widget{
     z-index:100000;
 }
+
+td.label{
+    height: 100%;
+    width: 100%;
+    padding-top: 18px;
+}
+td.label-warning{
+    padding-bottom: 18px;
+}
+td.label-important{
+    padding-bottom: 11px;
+}
+#calendar{
+    margin-bottom: 50px;
+}
+.rejected .popover-title{
+    background: #c09853;
+    color:white;
+}
+.released .popover-title{
+    background: #468847;
+    color:white;
+}
+.not-viewed .popover-title{
+    background: #b94a48;
+    color:white;
+}

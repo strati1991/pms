@@ -12,11 +12,11 @@ if ($_SESSION['role'] > 0) {
     $posts = listPosts($_SESSION['ID']);
 }
 ?>
-<div class="page-header">
+<div class="page-header view-content">
     <button class="btn" style="float:right" onclick="posts.addPost()">Post hinzufügen</button>
     <h1>Posts</h1>
 </div>
-<table id="postlist" class="table table-hover table-bordered" style="display:none;">
+<table id="postlist view-content" class="table table-hover table-bordered" style="display:none;">
     <thead>
         <tr>
             <th>Edit</th>
@@ -66,7 +66,7 @@ if ($_SESSION['role'] > 0) {
                     $style = "label label-success";
                 }
                 ?>
-                <td style="height: 100%;padding-top: 15px;width: 100%;" class="<?= $style ?>"  id="status_<?= $row['postID'] ?>" data-status="<?= $row['status'] ?>">
+                <td class="<?= $style ?>"  id="status_<?= $row['postID'] ?>" data-status="<?= $row['status'] ?>">
                     <span><?= $status[$row['status']] ?></span>
                 </td>
                 <td id="start_<?= $row['postID'] ?>"><?= $row['startTime'] ?></td>
@@ -82,14 +82,10 @@ if ($_SESSION['role'] > 0) {
 <div id="add-dialog" style="display:none" >
 
     <div style="display:none" id="alert-not-filled-dialog" class="alert alert-block alert-error">
-        <button type="button" class="close" data-dismiss="alert">x</button>
+        <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
         Es muss mindestens eins der drei Felder mit Inhalt gefüllt sein: Nachricht,Link oder Bild!
     </div>
-    <div style="display:none" id="alert-date-not-correct-dialog" class="alert alert-block alert-error">
-        <button type="button" class="close" data-dismiss="alert">x</button>
-        Das Datum muss in der Zukunft liegen!
-    </div>
-    <form class="form-horizontal">
+    <div class="form-horizontal">
         <fieldset>
             <div class="control-group">
                 <label class="control-label" for="message">Deine Nachricht:</label>
@@ -116,18 +112,28 @@ if ($_SESSION['role'] > 0) {
             <div class="control-group">
                 <label class="control-label" for="fileupload">Bild hinzufügen:</label>
                 <div class="controls">
-                    <span style="float: left;" class="btn btn-success fileinput-button">
+                    <span style="float: left;" id="imageupload-button" class="btn btn-success fileinput-button">
                         <i class="icon-upload icosn-white"></i>
-                        <span id="upload-label">hochladen</span>
-                        <input id="fileupload" type="file" name="file">
+                        <span >hochladen</span>
                     </span>
+                    <form id="imageupload-form" style="display:none" action="/backend/ajax_requests.php?action=uploadImage" method="post"> 
+                        <input id="imageupload-file" type="file" name="file"/>
+                    </form>
                     <button style="margin-left: 10px;" onclick="posts.enableLink()" class="btn btn-warning"><i class="icon-trash icosn-white"></i><span style="margin-left: 5px;">Bild entfernen</span></button>
                 </div>
+            </div>
+            <div style="display:none" id="alert-image-to-large-dialog" class="alert alert-block alert-error">
+                <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
+                Dein Bild ist zu groß es darf höchstens 100kb groß sein!
+            </div>
+            <div style="display:none" id="alert-image-wrong-type-dialog" class="alert alert-block alert-error">
+                <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
+                Dein Bild muss entweder ein PNG oder ein JPEG sein!
             </div>
             <div class="control-group">
                 <label class="control-label" for="picture-preview">Vorschau:</label>
                 <div class="controls">
-                    <img  class="img-polaroid" alt="kein Bild" id="picture-preview" style="width: 250px;margin-bottom: 10px;"/>
+                    <img src="/img/no_image.jpg" class="img-polaroid" alt="kein Bild" id="picture-preview" style="width: 250px;margin-bottom: 10px;"/>
                 </div>
             </div>
             <div class="control-group">
@@ -139,6 +145,10 @@ if ($_SESSION['role'] > 0) {
                     </div>
 
                 </div>
+            </div>
+             <div style="display:none" id="alert-date-not-correct-dialog" class="alert alert-block alert-error">
+                <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
+                Das Datum muss in der Zukunft liegen!
             </div>
             <div class="control-group">
                 <label class="control-label" for="multiselect">Seiten auf denen der Post veröffentlicht werden soll:</label>
@@ -156,7 +166,7 @@ if ($_SESSION['role'] > 0) {
             </div>
 
         </fieldset>
-    </form>
+    </div>
 </div>
 <div id="preview-dialog" style="display:none" >
     <form class="form-horizontal">

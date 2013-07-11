@@ -14,11 +14,11 @@ view.init = function() {
                 helper.finished();
             }
         });
-        $('.has-tooltip-bottom').tooltip({
+        $('.view-content .has-tooltip-bottom').tooltip({
             placement: 'bottom',
             html: true
         });
-        $('.has-tooltip-left').tooltip({
+        $('.view-content .has-tooltip-left').tooltip({
             placement: 'left',
             html: true
         });

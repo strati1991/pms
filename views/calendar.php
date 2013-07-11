@@ -11,36 +11,57 @@ if ($_SESSION['role'] > 0) {
 }
 ?>
 <script>
-    var dates = {
+    var dates = [
 <?php
-
-function formatDate($date) {
-    $array = split("-", $date);
-    return $array[0] . "/" . intval($array[1]) . "/" . intval($array[2]);
-}
-
 $counter = 0;
 while ($row = mysql_fetch_array($posts)) {
     if ($counter != 0) {
         echo ",";
     }
-    if ($row["startTime"] == "0000-00-00 00:00:00") {
-        echo '"' . formatDate($row["lastChanged"]) . '" : {';
-    } else {
-        echo '"' . formatDate($row["startTime"]) . '" : {';
+    echo '{';
+    if ($row["status"] == 0) {
+        $style = "not-viewed";
+        $color = "#b94a48";
     }
-    echo '"status" : "' . $row['status'] . '" ';
+    if ($row["status"] == 1) {
+        $style = "rejected";
+        $color = "#c09853";
+    }
+    if ($row["status"] == 2) {
+        $style = "released";
+        $color = "#468847";
+    }
+    if ($row["startTime"] == "0000-00-00 00:00:00") {
+        echo '"start" : new Date("' . $row["lastChanged"] . '"), ';
+    } else {
+        echo '"start" : new Date("' . $row["startTime"] . '"),';
+    }
+    echo '"status" : "' . $row['status'] . '",';
+    echo '"ID" : "' . $row['postID'] . '",';
+    echo '"title" : "' . $row['message'] . '", ';
+    echo '"className" : "' . $style . '", ';
+    echo '"color" : "' . $color . '", ';
     echo "}";
     $counter++;
 }
 $counter = 0;
-?>};
+?>];
 </script>
 <link rel="stylesheet" type="text/css" href="css/pickadate.03.inline.css" />
 <div class="page-header">
-    <h1>Kalender</h1>
+
+    <h1 class="pull-left">Kalender</h1>
+    <div class="well well-small pull-right" style="margin-top: 12px;">
+            <span class="label label-important">Noch nicht angesehen</span>
+            <span class="label label-warning">Es gibt Korrekturen</span>
+            <span class="label label-success">Freigegen</span>
+    </div>
 </div>
-<input id="calendar" style="display:none" type="text"/>
+
+
+<div id="calendar"></div>
 <ul id="date-pages" style="display:none" class="well well-large" >
 </ul>
-<script type="text/javascript" src="js/calendar.js"></script>
+<?php
+require_once("../js/calendar.php");
+?>

@@ -111,20 +111,13 @@ if ($_GET["action"] == "addPost") {
     echo "OK";
 }
 
-if ($_GET["action"] == "getPostByDate") {
+if ($_GET["action"] == "getPostByID") {
     $date = str_replace("/", "-", $_GET["date"]);
     $sql = "SELECT *" .
-            "FROM posts where " .
-            "(startTime >='" . $date . " 00:00:00' " .
-            "and startTime < '" . $date . " 23:59:59') " .
-            "or " .
-            "(startTime = '0000-00-00 00:00:00' " .
-            "and lastChanged >='" . $date . " 00:00:00' " .
-            "and lastChanged <= '" . $date . " 23:59:59')";
+            "FROM posts where postID='" . $id . "' ";
     if ($_SESSION['role'] == 0) {
         $sql = $sql . "and userID='" . $_SESSION["ID"] . "'";
     }
-    $sql = $sql . "and userID='" . $_SESSION["ID"] . "' order by status,lastChanged,startTime";
     $post = query($sql);
     if (!$post) {
         echo $errors['DATABASE_CON'];
@@ -135,18 +128,17 @@ if ($_GET["action"] == "getPostByDate") {
         exit;
     }
 
-    $get = '{ "posts":[';
     while ($row = mysql_fetch_assoc($post)) {
         $get = $get . '{' .
                 '"ID": "' . $row['postID'] . '",' .
                 '"message": "' . $row['message'] . '",' .
                 '"startTime": "' . $row['startTime'] . '",' .
                 '"lastChanged": "' . $row['lastChanged'] . '",' .
+                '"picture": "' . $row['picture'] . '",' .
+                '"link": "' . $row['link'] . '",' .
                 '"status": "' . $row['status'] . '"' .
-                '},';
+                '}';
     }
-    $get = substr($get, 0, -1);
-    $get = $get . "]}";
     echo $get;
 }
 if ($_GET["action"] == "getPostOnPages") {

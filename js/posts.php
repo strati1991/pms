@@ -1,5 +1,6 @@
 <?php
 header("Content-Type: text/javascript; charset=UTF-8");
+require_once("../backend/config.php");
 ?>
 <script type="text/javascript">
     var datePicker = undefined;
@@ -7,10 +8,8 @@ header("Content-Type: text/javascript; charset=UTF-8");
         var script1 = $.getScript("js/vendor/bootstrap-datetimepicker.min.js"),
                 script2 = $.getScript("js/vendor/bootstrap-multiselect.js"),
                 script3 = $.getScript("js/vendor/jquery.dataTables.min.js"),
-                script4 = $.getScript("js/vendor/jquery.ui.widget.js"),
-                script5 = $.getScript("js/vendor/jquery.iframe-transport.js"),
-                script6 = $.getScript("js/vendor/jquery.fileupload.js");
-        $.when(script1, script2, script3, script4, script5, script6).done(function(result2, result1) {
+                script4 = $.getScript("js/vendor/jquery.form.min.js");
+        $.when(script1, script2, script3, script4).done(function(result2, result1) {
             $('.dropdown input, .dropdown label').click(function(event) {
                 event.stopPropagation();
             });
@@ -26,11 +25,11 @@ header("Content-Type: text/javascript; charset=UTF-8");
                     helper.finished();
                 }
             });
-            $('.has-tooltip-bottom').tooltip({
+            $('.view-content .has-tooltip-bottom').tooltip({
                 placement: 'bottom',
                 html: true
             });
-            $('.has-tooltip-left').tooltip({
+            $('.view-content .has-tooltip-left').tooltip({
                 placement: 'left',
                 html: true
             });
@@ -185,7 +184,7 @@ header("Content-Type: text/javascript; charset=UTF-8");
                     });
                     $("#modal-dialog #select-date").datetimepicker();
                     posts.uploadImage();
-                    posts.uploadYoutube();
+                    //posts.uploadYoutube();
 
                 },
                 saveFunction: function() {
@@ -217,7 +216,7 @@ header("Content-Type: text/javascript; charset=UTF-8");
                     id: id !== undefined ? id : '',
                     message: $("#modal-dialog #message").val(),
                     link: $("#modal-dialog #link").val(),
-                    picture: $("#modal-dialog #picture-preview").attr("src"),
+                    picture: $("#modal-dialog #picture-preview").attr("src") == "/img/no_image.jpg" ? "" : $("#modal-dialog #picture-preview").attr("src"),
                     publishdate: date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     pages: escape(pages),
                 },
@@ -332,12 +331,14 @@ header("Content-Type: text/javascript; charset=UTF-8");
                     preShowFunction: function() {
                         $("#modal-dialog #message").html(unescape(response.message));
                         $("#modal-dialog #link").val(unescape(response.link));
-                        $("#modal-dialog #picture-preview").attr("src", unescape(response.picture));
+                        if (unescape(response.picture) != "") {
+                            $("#modal-dialog #picture-preview").attr("src", unescape(response.picture));
+                        }
                         $("#modal-dialog #picture-preview").show();
                         $("#modal-dialog #picture").val(unescape(response.picture));
                         $("#modal-dialog #publish-date").val(response.startTime);
                         $("#modal-dialog #publish-date").attr("value", response.startTime);
-                        if ($("#modal-dialog #picture").val() != "") {
+                        if ($("#modal-dialog #imageupload-file").val() != "") {
                             $("#modal-dialog #link").attr('disabled', '');
                         }
                         $("#modal-dialog #picture").bind('change', function() {
@@ -360,7 +361,7 @@ header("Content-Type: text/javascript; charset=UTF-8");
                         });
                         $("#modal-dialog #select-date").datetimepicker();
                         posts.uploadImage();
-                        posts.uploadYoutube();
+                        //posts.uploadYoutube();
                     },
                     saveFunction: function() {
                         posts.savePost("updatePost", id);
@@ -369,16 +370,43 @@ header("Content-Type: text/javascript; charset=UTF-8");
             });
         },
         uploadImage: function() {
-            $('#modal-dialog #fileupload').fileupload({
-                url: "/backend/ajax_requests.php?action=uploadImage",
-                dataType: 'json',
-                forceIframeTransport: true,
-                done: function(e, data) {
-                    $('#modal-dialog #picture-preview').attr("src", data.result.files[0].url);
-                    $("#modal-dialog #link").val("");
-                    $("#modal-dialog #link").attr('disabled', '');
+            var oldimage = $('#modal-dialog #picture-preview').attr("src");
+            var options = {
+                target: '#modal-dialog #picture-preview',
+                dataType: "json",
+                type: 'post',
+                beforeSubmit: function(formData, jqForm, options) {
+                    $("#modal-dialog #picture-preview").attr("src", "/img/ajax-loader.gif");
+                    return true;
+                },
+                success: function(responseText, statusText, xhr, $form) {
+                    if (responseText.error) {
+                        if (responseText.error == "<?= $errors['IMAGE_TO_LARGE'] ?>") {
+                            $("#modal-dialog #alert-image-to-large-dialog").show();
+                            $('#modal-dialog #picture-preview').attr("src", oldimage);
+
+                        }
+                        if (responseText.error == "<?= $errors['WRONG_IMAGE_TYPE'] ?>") {
+                            $("#modal-dialog #alert-image-wrong-type-dialog").show();
+                            $('#modal-dialog #picture-preview').attr("src", oldimage);
+
+                        }
+                    } else {
+                        $('#modal-dialog #picture-preview').attr("src", responseText.files[0].url);
+                        $("#modal-dialog #link").val("");
+                        $("#modal-dialog #link").attr('disabled', '');
+                    }
+
                 }
-            })
+            };
+            $("#modal-dialog #imageupload-button").bind("click", function() {
+                $("#modal-dialog #imageupload-file").click();
+            });
+            $("#modal-dialog #imageupload-file").change(function() {
+                if ($("#modal-dialog #imageupload-file").val() != "") {
+                    $('#modal-dialog #imageupload-form').ajaxSubmit(options);
+                }
+            });
         },
         uploadYoutube: function() {
             $('#modal-dialog #youtube-link').fileupload({
@@ -395,7 +423,7 @@ header("Content-Type: text/javascript; charset=UTF-8");
         },
         enableLink: function() {
             $("#modal-dialog #link").removeAttr('disabled');
-            $('#modal-dialog #picture-preview').attr("src", "");
+            $('#modal-dialog #picture-preview').attr("src", "/img/no_image.jpg");
         }
     };
 </script>

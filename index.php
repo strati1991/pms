@@ -24,6 +24,7 @@ require_once("backend/database_functions.php");
         <link rel="stylesheet" type="text/css" href="css/bootstrap-datetimepicker.min.css" />
         <link rel="stylesheet" type="text/css" href="css/bootstrap-multiselect.css"  />
         <link rel="stylesheet" type="text/css" href="css/jquery.pnotify.default.css" />
+        <link rel="stylesheet" type="text/css" href="css/fullcalendar.css" />
     </head>
     <body data-twttr-rendered="true">
         <!--[if lt IE 9]>

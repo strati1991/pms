@@ -5,13 +5,13 @@ require_once("backend/config.php");
     var view = {init: function() {
         }};
     var helper = {
-        loading : function(){
+        loading: function() {
             $("#loading-screen").show();
         },
-        finished : function(){
+        finished: function() {
             $("#content").show();
             $("#loading-screen").fadeOut();
-        },        
+        },
         load: function(page, callback) {
             helper.loading()
             $.ajax("/views/" + page + ".php").done(function(response) {
@@ -128,6 +128,14 @@ require_once("backend/config.php");
             if (data.preShowFunction) {
                 data.preShowFunction();
             }
+            $('.has-tooltip-bottom').tooltip({
+                placement: 'bottom',
+                html: true
+            });
+            $('.has-tooltip-left').tooltip({
+                placement: 'left',
+                html: true
+            });
             $("#modal-dialog").modal("show");
             if (callback) {
                 callback();
@@ -167,7 +175,8 @@ require_once("backend/config.php");
                                     title: 'Post wurde gelöscht',
                                     text: "Post " + value.dataText + " wurde gelöscht",
                                 });
-                            }s
+                            }
+                            s
                             if (value.type == <?= $notifications['post_updated'] ?>) {
                                 $.pnotify({
                                     title: 'Post wurde verändert',

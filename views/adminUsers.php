@@ -2,24 +2,25 @@
 ini_set('display_errors', 'On');
 error_reporting(E_all || E_STRICT);
 require_once('../backend/database_functions.php');
+require_once('../backend/config.php');
 session_start();
 if ($_SESSION['role'] == "0") {
     include("views/notAuthorized.html");
 } else {
     $result = listUsers();
     ?>
-    <div class="page-header">
+    <div class="page-header view-content">
         <?php
         if ($_SESSION['role'] > 0) {
             ?>
-            <button class="btn" style="float:right" onclick="users.refreshUsers('<?= $_SESSION['ID'] ?>');">Meine Seiten aktualisieren</button>
+            <button title="Aktualisiere die Seiten auf denen du Content-erstell-Rechte hast" class="btn has-tooltip-bottom" style="float:right" onclick="users.refreshUsers('<?= $_SESSION['ID'] ?>');">Meine Seiten aktualisieren</button>
         <?php }
         ?>
         <button class="btn" style="float:right" onclick="users.addUser()">User hinzufügen</button>
         <h1>Administer Users</h1>
     </div>
 
-    <table id="userlist" class="table table-hover table-bordered" style="display:none;">
+    <table id="userlist" class="table table-hover table-bordered view-content" style="display:none;">
         <thead>
             <tr>
                 <?php if ($_SESSION['role'] > 1) {
@@ -82,18 +83,18 @@ if ($_SESSION['role'] == "0") {
     <div id="change-dialog" style="display:none">
         <label> Rolle von <span class="modal-username"></span> ändern:</label>
         <div id="select-role-change" class="btn-group" data-toggle="buttons-radio">
-            <button type="button" class="btn btn-primary" value="1">Community Manager</button>
-            <button type="button" class="btn btn-primary" value="0">User</button>
-            <button type="button" class="btn btn-primary" value="2">Root</button>
+            <button title="<?= $role_description[1] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="1">Community Manager</button>
+            <button title="<?= $role_description[0] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="0">User</button>
+            <button title="<?= $role_description[2] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="2">Root</button>
         </div>      
     </div>
     <div id="add-dialog" style="display:none" >
         <div style="display:none" id="alert-not-a-user-dialog" class="alert alert-block alert-error">
-            <button type="button" class="close" data-dismiss="alert">x</button>
+            <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
             Den User gibt es nicht!
         </div>
         <div style="display:none" id="modal-facebook-name-error" class="alert alert-block alert-error">
-            <button type="button" class="close" data-dismiss="alert">x</button>
+            <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
            <span  class="text-error">du musst einen Usernamen eingeben!</span>
         </div>
         <form class="form-horizontal">
@@ -101,16 +102,16 @@ if ($_SESSION['role'] == "0") {
                 <div class="control-group">
                     <label class="control-label" for="modal-facebook-name">Geben Sie den Facebook-Usernamen ein:</label>
                     <div class="controls" style="margin-top: 5px;">
-                       <input type="text" id="modal-facebook-name" placeholder="z.B. hans.maier">
+                       <input title="Der Username ist das was am Ende</br>der URL angezeigt wird,</br>wenn man auf das Facebook-Profil</br>des jeweiligen Users geht" type="text" id="modal-facebook-name" class="has-tooltip-bottom" placeholder="z.B. hans.maier">
                     </div>
                 </div>
                  <div class="control-group">
                     <label class="control-label" for="modal-facebook-name">Rolle festlegen:</label>
                     <div class="controls" style="margin-top: 5px;">
                         <div id="select-role-add" class="btn-group" data-toggle="buttons-radio">
-                            <button type="button" class="btn btn-primary active" value="1">Community Manager</button>
-                            <button type="button" class="btn btn-primary" value="0">User</button>
-                            <button type="button" class="btn btn-primary" value="2">Root</button>
+                            <button title="<?= $role_description[1] ?>" type="button" class="btn btn-primary active has-tooltip-bottom" value="1">Community Manager</button>
+                            <button title="<?= $role_description[0] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="0">User</button>
+                            <button title="<?= $role_description[2] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="2">Root</button>
                         </div>
                     </div>
                 </div>

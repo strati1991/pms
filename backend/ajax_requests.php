@@ -33,27 +33,17 @@ if ($_GET["action"] == "register") {
 if ($_GET["action"] == "uploadImage") {
     $image = $_FILES['file'];
     $ending = substr($image['name'],  strlen($image['name']) - 4);
-    if(intval($image['size']) > 20000){
-        echo '{"files": [' . 
-            '{' . 
-            '"name": "' . $image['name'] . '",' . 
-            '"size": ' .  $image['size'] . ',' .
-            '"url":' .  '"' . substr($path,3) . '",' .
+    if(intval($image['size']) > 100000){
+        echo '{' . 
             '"error":' . '"' . $errors['IMAGE_TO_LARGE'] . '"' .
-            '}' .
-        ']}';
+            '}' ;
         unlink($image['tmp_name']);
         exit;
     }
     if($ending != ".jpg" &&  $ending != ".png" &&  $ending != "jpeg" ){
-        echo '{"files": [' . 
-            '{' . 
-            '"name": "' . $image['name'] . '",' . 
-            '"size": ' .  $image['size'] . ',' .
-            '"url":' .  '"' . substr($path,3) . '",' .
+        echo '{' . 
             '"error":' . '"' . $errors['WRONG_IMAGE_TYPE'] . '"' .
-            '}' .
-        ']}';
+            '}';
         unlink($image['tmp_name']);
         exit;
     }
