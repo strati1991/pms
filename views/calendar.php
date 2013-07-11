@@ -49,7 +49,7 @@ $counter = 0;
 ?>];
 </script>
 <link rel="stylesheet" type="text/css" href="css/pickadate.03.inline.css" />
-<div class="page-header">
+<div class="page-header" style="padding-bottom: 70px;">
 
     <h1 class="pull-left">Kalender</h1>
     <div class="well well-small pull-right" style="margin-top: 12px;">

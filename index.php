@@ -31,7 +31,7 @@ require_once("backend/database_functions.php");
         <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
         <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-inner">
+            <div class="navbar-inner" id="navbar">
                 <div class="container">
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                         <span class="icon-bar"></span>
@@ -44,14 +44,19 @@ require_once("backend/database_functions.php");
                     </div>
                     <div class="nav-collapse collapse">
                         <ul class="nav pull-left">
-                            <li><a id="admin-users-button" style="display:none" href="#" onclick="helper.collapseMenu();helper.load('adminUsers')" >Administer Users</a></li>
-                            <li><a id="posts-button" href="#" style="display:none"  onclick="helper.collapseMenu();helper.load('posts')" >Posts</a></li>
-                            <li><a id="calendar-button" href="#" style="display:none"  onclick="helper.collapseMenu();helper.load('calendar')" >Kalender</a></li>
+                            <li><a id="admin-users-button" style="display:none" href="#" onclick="helper.collapseMenu();
+                                    helper.load('adminUsers')" >Administer Users</a></li>
+                            <li><a id="posts-button" href="#" style="display:none"  onclick="helper.collapseMenu();
+                                    helper.load('posts')" >Posts</a></li>
+                            <li><a id="calendar-button" href="#" style="display:none"  onclick="helper.collapseMenu();
+                                    helper.load('calendar')" >Kalender</a></li>
                         </ul>
 
                         <ul class="nav pull-right">
-                            <li><a id="login-button"  href="#" onclick="helper.collapseMenu();login();" style="display:none">Login</a></li>
-                            <li><a id="logout-button"  href="#" onclick="helper.collapseMenu();logout()" style="display:none">Logout</a></li>
+                            <li><a id="login-button"  href="#" onclick="helper.collapseMenu();
+                                    login();" style="display:none">Login</a></li>
+                            <li><a id="logout-button"  href="#" onclick="helper.collapseMenu();
+                                    logout()" style="display:none">Logout</a></li>
                         </ul>
                     </div>
                 </div>
@@ -88,7 +93,7 @@ require_once("backend/database_functions.php");
         </div>
         <div id="modal-dialog" class="modal hide fade">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" onclick="$('.modal-body').css('overflow-y','scroll');" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" onclick="$('.modal-body').css('overflow-y', 'scroll');" aria-hidden="true">x</button>
                 <h3 id="modal-header"></h3>
             </div>
             <div id="modal-content" class="modal-body">
@@ -117,7 +122,8 @@ require_once("backend/database_functions.php");
                 $("#close").bind("click", function() {
                     $('#modal-dialog').modal('hide');
                 });
-            })
+            });
+            
         </script>
     </body>
 </html>
