@@ -14,14 +14,6 @@ view.init = function() {
                 helper.finished();
             }
         });
-        $('.view-content .has-tooltip-bottom').tooltip({
-            placement: 'bottom',
-            html: true
-        });
-        $('.view-content .has-tooltip-left').tooltip({
-            placement: 'left',
-            html: true
-        });
     })
 
 };
@@ -111,6 +103,7 @@ var users = {
             preShowFunction: function() {
                 $("#modal-dialog #modal-facebook-name-error").hide();
                 $("#modal-dialog #select-role-add-error").hide();
+                $("#modal-dialog").css("overflow-y","scroll");
             },
             saveFunction: function() {
                 if ($("#modal-dialog #modal-facebook-name").val() === "") {

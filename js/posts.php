@@ -25,14 +25,6 @@ require_once("../backend/config.php");
                     helper.finished();
                 }
             });
-            $('.view-content .has-tooltip-bottom').tooltip({
-                placement: 'bottom',
-                html: true
-            });
-            $('.view-content .has-tooltip-left').tooltip({
-                placement: 'left',
-                html: true
-            });
         });
 
     };
@@ -68,12 +60,18 @@ require_once("../backend/config.php");
         addComment: function(id, username) {
             if (!$("#modal-dialog #add-comment-button").hasClass("has-comment")) {
                 $("#modal-dialog #add-comment-button").addClass("has-comment");
-                $("#modal-dialog #add-comment-button").html("Speichern");
+                $("#modal-dialog #add-comment-button").html("<i class='icon-ok icosn-white'></i>");
+                $("#modal-dialog #cancel-comment-button").show();
                 $("#modal-dialog #comment").show();
             } else {
+                if ($("#modal-dialog #comment").val() == "") {
+                    $("#modal-dialog #alert-comment-empty-dialog").show();
+                    return;
+                }
                 helper.loading();
+                $("#modal-dialog #cancel-comment-button").hide();
                 $("#modal-dialog #add-comment-button").removeClass("has-comment");
-                $("#modal-dialog #add-comment-button").html("Kommentar hinzufügen");
+                $("#modal-dialog #add-comment-button").html("<i class='icon-comment icosn-white'></i>");
                 $("#modal-dialog #comment").hide();
                 $.ajax("backend/ajax_posts.php?action=addComment&postID=" + id + "&comment=" + escape($("#modal-dialog #comment").val())).done(function(response) {
                     $("#modal-dialog #comments").append("<div class='comment' id='comment-" + id + "'>" +
@@ -98,6 +96,12 @@ require_once("../backend/config.php");
                 });
             }
 
+        },
+        cancelComment: function() {
+            $("#modal-dialog #cancel-comment-button").hide();
+            $("#modal-dialog #add-comment-button").removeClass("has-comment");
+            $("#modal-dialog #add-comment-button").html("<i class='icon-comment icosn-white'></i>");
+            $("#modal-dialog #comment").hide();
         },
         deleteComment: function(id) {
             $("#loading-screen").show();
@@ -333,14 +337,12 @@ require_once("../backend/config.php");
                         $("#modal-dialog #link").val(unescape(response.link));
                         if (unescape(response.picture) != "") {
                             $("#modal-dialog #picture-preview").attr("src", unescape(response.picture));
+                            $("#modal-dialog #link").attr('disabled', '');
                         }
                         $("#modal-dialog #picture-preview").show();
                         $("#modal-dialog #picture").val(unescape(response.picture));
                         $("#modal-dialog #publish-date").val(response.startTime);
                         $("#modal-dialog #publish-date").attr("value", response.startTime);
-                        if ($("#modal-dialog #imageupload-file").val() != "") {
-                            $("#modal-dialog #link").attr('disabled', '');
-                        }
                         $("#modal-dialog #picture").bind('change', function() {
                             if ($("#modal-dialog #picture").val() != "") {
                                 $("#modal-dialog #picture-preview").attr("src", $("#modal-dialog #picture").val());

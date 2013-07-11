@@ -29,12 +29,12 @@
                 if (post.startTime == "0000-00-00 00:00:00") {
                     time = post.lastChanged;
                 }
-                var dateHTML = (post.picture != "" ? 
-                                "<img src='" +  post.picture + "' >" : 
-                               "" )
-                               + "<p style='color:black'>" + post.message + "</span>" + 
-                               (post.link != "" ? 
-                               "<a target=_blank href='" +  post.link + "' >" +  post.link + "</a>" : "");
+                var dateHTML = (post.picture != "" ?
+                        "<img src='" + post.picture + "' >" :
+                        "")
+                        + "<p style='color:black'>" + post.message + "</span>" +
+                        (post.link != "" ?
+                                "<a target=_blank href='" + post.link + "' >" + post.link + "</a>" : "");
                 element.popover({
                     html: true,
                     title: time,
@@ -59,9 +59,20 @@
         var script1 = $.getScript("js/vendor/fullcalendar.min.js");
         $.when(script1).done(function(result2, result1) {
             $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                defaultEventMinutes:60,
+                axisFormat:"HH:00",
+                slotMinutes:60,
+                height: 700,
+                weekMode:'liquid',
                 editable: false,
                 eventRender: calendar.renderEvent,
                 events: dates,
+                firstDay:1,
                 eventClick: function(calEvent, jsEvent, view) {
                     calendar.showPost(calEvent.ID);
                 }

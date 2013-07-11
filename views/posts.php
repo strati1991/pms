@@ -13,10 +13,10 @@ if ($_SESSION['role'] > 0) {
 }
 ?>
 <div class="page-header view-content">
-    <button class="btn" style="float:right" onclick="posts.addPost()">Post hinzufügen</button>
+    <button class="btn has-tooltip-bottom" title="Post hinzufügen" style="float:right" onclick="posts.addPost()"><i class="icon-plus icosn-white"></i></button>
     <h1>Posts</h1>
 </div>
-<table id="postlist view-content" class="table table-hover table-bordered" style="display:none;">
+<table id="postlist" class="table table-hover table-bordered view-content" style="display:none;">
     <thead>
         <tr>
             <th>Edit</th>
@@ -146,7 +146,7 @@ if ($_SESSION['role'] > 0) {
 
                 </div>
             </div>
-             <div style="display:none" id="alert-date-not-correct-dialog" class="alert alert-block alert-error">
+            <div style="display:none" id="alert-date-not-correct-dialog" class="alert alert-block alert-error">
                 <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
                 Das Datum muss in der Zukunft liegen!
             </div>
@@ -186,7 +186,7 @@ if ($_SESSION['role'] > 0) {
             <div class="control-group">
                 <label class="control-label" for="picture">Bild:</label>
                 <div class="controls" style="margin-top: 5px;">
-                    <img class="img-polaroid" alt="kein Bild" id="picture"/>
+                    <img style="width: 200px;" class="img-polaroid" alt="kein Bild" id="picture"/>
                 </div>
             </div>
             <div class="control-group">
@@ -197,28 +197,32 @@ if ($_SESSION['role'] > 0) {
                     </div>
                 </div>
             </div>
-
             <h4>Kommentare:</h4>
             <hr>
             <div id="comments" class="well well-small">
             </div>
+            <div style="display:none" id="alert-comment-empty-dialog" class="alert alert-block alert-error">
+                <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
+                Du hast keinen Text eingegeben!
+            </div>
             <textarea id="comment" style="display:none" rows="5" cols="20"></textarea>
-            <button class="btn" id="add-comment-button" title="Kommentar hinzufügen" class="has-tooltip-left"><i class="icon-comment icosn-white"></i></button>
+            <button class="btn has-tooltip-left" id="add-comment-button" title="Kommentar hinzufügen" ><i class="icon-comment icosn-white"></i></button>
+            <button class="btn has-tooltip-left" id="cancel-comment-button" onclick="posts.cancelComment();" style="display:none" title="Abbrechen" ><i class="icon-remove icosn-white"></i></button>
         </fieldset>
     </form>   
 </div>
 <div id="choose-page-dialog" style="display:none" >
-        <form class="form-horizontal">
-            <fieldset>
-                <div class="control-group">
-                    <label class="control-label" for="pages-list">Auf welchen Siten soll der Post veröffentlich werden:</label>
-                    <div class="controls" style="margin-top: 5px;">
-                        <ul class="nav nav-list" id="pages-list">
-                       </ul>
-                    </div>
+    <form class="form-horizontal">
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label" for="pages-list">Auf welchen Siten soll der Post veröffentlich werden:</label>
+                <div class="controls" style="margin-top: 5px;">
+                    <ul class="nav nav-list" id="pages-list">
+                    </ul>
                 </div>
-            </fieldset>
-        </form>
+            </div>
+        </fieldset>
+    </form>
 </div>
 <div id="change-status-dialog" style="display:none" >
     <div id="select-status-change" class="btn-group" data-toggle="buttons-radio">
@@ -244,7 +248,7 @@ if ($_SESSION['role'] > 0) {
     </div>
 </div><div id="delete-dialog" style="display:none">
     <div class="alert alert-warning">
-            <strong>Wollen sie den Post wirklich l&ouml;schen?</strong>
+        <strong>Wollen sie den Post wirklich l&ouml;schen?</strong>
     </div>
 </div>
 <?php

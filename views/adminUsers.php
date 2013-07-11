@@ -13,10 +13,10 @@ if ($_SESSION['role'] == "0") {
         <?php
         if ($_SESSION['role'] > 0) {
             ?>
-            <button title="Aktualisiere die Seiten auf denen du Content-erstell-Rechte hast" class="btn has-tooltip-bottom" style="float:right" onclick="users.refreshUsers('<?= $_SESSION['ID'] ?>');">Meine Seiten aktualisieren</button>
+            <button title="Aktualisiere die Seiten auf denen du Content-erstell-Rechte hast" class="btn has-tooltip-bottom" style="float:right" onclick="users.refreshUsers('<?= $_SESSION['ID'] ?>');"><i class="icon-refresh icosn-white"></i></button>
         <?php }
         ?>
-        <button class="btn" style="float:right" onclick="users.addUser()">User hinzufügen</button>
+        <button class="btn has-tooltip-bottom" style="float:right"  title="User hinzufügen" onclick="users.addUser()"><i class="icon-plus icosn-white"></i></button>
         <h1>Administer Users</h1>
     </div>
 
@@ -83,9 +83,9 @@ if ($_SESSION['role'] == "0") {
     <div id="change-dialog" style="display:none">
         <label> Rolle von <span class="modal-username"></span> ändern:</label>
         <div id="select-role-change" class="btn-group" data-toggle="buttons-radio">
-            <button title="<?= $role_description[1] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="1">Community Manager</button>
-            <button title="<?= $role_description[0] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="0">User</button>
-            <button title="<?= $role_description[2] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="2">Root</button>
+            <button title="<?= $role_description[1] ?>" type="button" class="btn btn-primary has-tooltip-right" value="1">Community Manager</button>
+            <button title="<?= $role_description[0] ?>" type="button" class="btn btn-primary has-tooltip-right" value="0">User</button>
+            <button title="<?= $role_description[2] ?>" type="button" class="btn btn-primary has-tooltip-right" value="2">Root</button>
         </div>      
     </div>
     <div id="add-dialog" style="display:none" >
@@ -109,9 +109,9 @@ if ($_SESSION['role'] == "0") {
                     <label class="control-label" for="modal-facebook-name">Rolle festlegen:</label>
                     <div class="controls" style="margin-top: 5px;">
                         <div id="select-role-add" class="btn-group" data-toggle="buttons-radio">
-                            <button title="<?= $role_description[1] ?>" type="button" class="btn btn-primary active has-tooltip-bottom" value="1">Community Manager</button>
-                            <button title="<?= $role_description[0] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="0">User</button>
-                            <button title="<?= $role_description[2] ?>" type="button" class="btn btn-primary has-tooltip-bottom" value="2">Root</button>
+                            <button title="<?= $role_description[1] ?>" type="button" class="btn btn-primary active has-tooltip-top" value="1">Community Manager</button>
+                            <button title="<?= $role_description[0] ?>" type="button" class="btn btn-primary has-tooltip-top" value="0">User</button>
+                            <button title="<?= $role_description[2] ?>" type="button" class="btn btn-primary has-tooltip-top" value="2">Root</button>
                         </div>
                     </div>
                 </div>

@@ -34,13 +34,14 @@ while ($row = mysql_fetch_array($posts)) {
     if ($row["startTime"] == "0000-00-00 00:00:00") {
         echo '"start" : new Date("' . $row["lastChanged"] . '"), ';
     } else {
-        echo '"start" : new Date("' . $row["startTime"] . '"),';
+        echo '"start" : new Date("' . $row["startTime"]  . '"),';
     }
     echo '"status" : "' . $row['status'] . '",';
     echo '"ID" : "' . $row['postID'] . '",';
     echo '"title" : "' . $row['message'] . '", ';
     echo '"className" : "' . $style . '", ';
     echo '"color" : "' . $color . '", ';
+    echo '"allDay" : false ';
     echo "}";
     $counter++;
 }

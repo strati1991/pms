@@ -20,6 +20,22 @@ require_once("backend/config.php");
                 if (callback) {
                     callback();
                 }
+                $('.view-content .has-tooltip-bottom').tooltip({
+                    placement: 'bottom',
+                    html: true
+                });
+                $('.view-content .has-tooltip-left').tooltip({
+                    placement: 'left',
+                    html: true
+                });
+                $('.view-content .has-tooltip-top').tooltip({
+                    placement: 'top',
+                    html: true
+                });
+                $('.view-content .has-tooltip-right').tooltip({
+                    placement: 'right',
+                    html: true
+                });
 
             });
         },
@@ -136,10 +152,21 @@ require_once("backend/config.php");
                 placement: 'left',
                 html: true
             });
+            $('.has-tooltip-top').tooltip({
+                placement: 'top',
+                html: true
+            });
+            $('.has-tooltip-right').tooltip({
+                placement: 'right',
+                html: true
+            });
             $("#modal-dialog").modal("show");
             if (callback) {
                 callback();
             }
+        },
+        collapseMenu : function(){
+            $('.btn.btn-navbar').click();
         },
         showPost: function(id) {
             $('#notification-button').popover("hide");

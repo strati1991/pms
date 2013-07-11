@@ -5,6 +5,15 @@
     Description:
         Purpose of the stylesheet follows.
 */
+body{
+    background-image: url("/img/chalkboard-black.jpg");
+}
+#inner-content{
+    -webkit-box-shadow: 0px 2px 15px #ffffff;	/* webkit browser*/ -moz-box-shadow: 0px 2px 15px #ffffff;	/* firefox */ box-shadow: 0px 2px 15px #ffffff;
+    position: relative;
+    padding: 20px;
+    background: white;
+}
 a{
     text-decoration: none;
     cursor: pointer;
@@ -162,4 +171,9 @@ td.label-important{
 .not-viewed .popover-title{
     background: #b94a48;
     color:white;
+}
+#cancel-comment-button{
+    margin-top: 10px;
+    margin-right: 5px;
+    float: right;
 }

@@ -44,20 +44,20 @@ require_once("backend/database_functions.php");
                     </div>
                     <div class="nav-collapse collapse">
                         <ul class="nav pull-left">
-                            <li><a id="admin-users-button" style="display:none" href="#" onclick="helper.load('adminUsers')" >Administer Users</a></li>
-                            <li><a id="posts-button" href="#" style="display:none"  onclick="helper.load('posts')" >Posts</a></li>
-                            <li><a id="calendar-button" href="#" style="display:none"  onclick="helper.load('calendar')" >Kalender</a></li>
+                            <li><a id="admin-users-button" style="display:none" href="#" onclick="helper.collapseMenu();helper.load('adminUsers')" >Administer Users</a></li>
+                            <li><a id="posts-button" href="#" style="display:none"  onclick="helper.collapseMenu();helper.load('posts')" >Posts</a></li>
+                            <li><a id="calendar-button" href="#" style="display:none"  onclick="helper.collapseMenu();helper.load('calendar')" >Kalender</a></li>
                         </ul>
 
                         <ul class="nav pull-right">
-                            <li><a id="login-button"  href="#" onclick="login()" style="display:none">Login</a></li>
-                            <li><a id="logout-button"  href="#" onclick="logout()" style="display:none">Logout</a></li>
+                            <li><a id="login-button"  href="#" onclick="helper.collapseMenu();login();" style="display:none">Login</a></li>
+                            <li><a id="logout-button"  href="#" onclick="helper.collapseMenu();logout()" style="display:none">Logout</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="container"  style="position: relative;">
+        <div class="container" id="inner-content">
             <div class="row">
                 <div class="span12">
                     <div style="display:none" id="alert-message-send-dialog" class="alert alert-block alert-error">
@@ -88,7 +88,7 @@ require_once("backend/database_functions.php");
         </div>
         <div id="modal-dialog" class="modal hide fade">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" onclick="$('.modal-body').css('overflow-y','scroll');" aria-hidden="true">x</button>
                 <h3 id="modal-header"></h3>
             </div>
             <div id="modal-content" class="modal-body">
@@ -118,14 +118,6 @@ require_once("backend/database_functions.php");
                     $('#modal-dialog').modal('hide');
                 });
             })
-
-            function addNewUser(username) {
-                helper.load("adminUsers", function() {
-                    users.addUser();
-                    $("#modal-dialog #modal-facebook-name").val(username);
-                });
-
-            }
         </script>
     </body>
 </html>
