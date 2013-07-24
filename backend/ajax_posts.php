@@ -90,6 +90,51 @@ if ($role != "0") {
 }
 //  --------- everybody ---------
 if ($_GET["action"] == "addPost") {
+    require_once 'Zend/Loader.php'; // the Zend dir must be in your include_path
+    Zend_Loader::loadClass('Zend_Gdata_YouTube');
+    Zend_Loader::loadClass('Zend_Gdata_AuthSub');
+    Zend_Loader::loadClass('Zend_Gdata_ClientLogin');
+    $authenticationURL = 'https://www.google.com/accounts/ClientLogin';
+    $httpClient =
+            Zend_Gdata_ClientLogin::getHttpClient(
+                    $username = 'christoph.heidelmann@gmail.com', $password = 'Start123!', $service = 'youtube', $client = null, $source = 'PMS App', // a short string identifying your application
+                    $loginToken = null, $loginCaptcha = null, $authenticationURL);
+    $yt = new Zend_Gdata_YouTube($httpClient, $applicationId, $clientId, $developerKey);
+
+    // create a new VideoEntry object
+    $myVideoEntry = new Zend_Gdata_YouTube_VideoEntry();
+
+// create a new Zend_Gdata_App_MediaFileSource object
+    $filesource = $yt->newMediaFileSource($_GET['video']);
+// set slug header
+    $filesource->setSlug($_GET['video']);
+    $myVideoEntry->setVideoPrivate();
+
+// add the filesource to the video entry
+    $myVideoEntry->setMediaSource($filesource);
+
+    $myVideoEntry->setVideoTitle($_GET['video_title']);
+    $myVideoEntry->setVideoDescription($_GET['video_title']);
+// The category must be a valid YouTube category!
+    $myVideoEntry->setVideoCategory($_GET['video_category']);
+
+// Set keywords. Please note that this must be a comma-separated string
+// and that individual keywords cannot contain whitespace
+    $myVideoEntry->SetVideoTags($_GET['video_tags']);
+
+
+// upload URI for the currently authenticated user
+    $uploadUrl = 'http://uploads.gdata.youtube.com/feeds/api/users/default/uploads';
+
+    try {
+        $newEntry = $yt->insertEntry($myVideoEntry, $uploadUrl, 'Zend_Gdata_YouTube_VideoEntry');
+    } catch (Zend_Gdata_App_HttpException $httpException) {
+        echo $httpException->getRawResponseBody();
+        exit;
+    } catch (Zend_Gdata_App_Exception $e) {
+        echo $e->getMessage();
+        exit;
+    }
     query("INSERT IGNORE INTO posts (lastChanged,userID,message,startTime,picture,link) " .
             "VALUES (" .
             "NOW()," .
@@ -97,6 +142,7 @@ if ($_GET["action"] == "addPost") {
             "'" . mysql_escape_string($_GET['message']) . "'," .
             "'" . $_GET['publishdate'] . "'," .
             "'" . mysql_escape_string($_GET['picture']) . "'," .
+            "'" . mysql_escape_string($newEntry->getVideoId()) . "'," .
             "'" . mysql_escape_string($_GET['link']) . "'" .
             ")");
     $result = query("SELECT * FROM posts where userID='" . $user . "' and message='" . mysql_escape_string($_GET['message']) . "' order by lastChanged LIMIT 1");
@@ -212,7 +258,7 @@ function notificate($postID, $type, $dataText) {
                      ) AS post_pages ON pages.pageID = post_pages.pageID
                  ) AS users_with_page
             JOIN users ON users.id = users_with_page.userID
-            WHERE role >0 and userID <> '" . $_SESSION['ID']. "'");
+            WHERE role >0 and userID <> '" . $_SESSION['ID'] . "'");
     while ($row = mysql_fetch_assoc($result)) {
         query("INSERT IGNORE INTO `notifications`(`for`, `type`, `dataID`,`dataText`) " .
                 "VALUES (" .
@@ -237,8 +283,8 @@ if ($_GET["action"] == "addComment") {
     echo "OK";
 }
 if ($_GET["action"] == "deleteComment") {
-        query("DELETE FROM comments where ID='" . $id . "' and userID = '" . $_SESSION['ID'] ."'");
-        echo "OK";
+    query("DELETE FROM comments where ID='" . $id . "' and userID = '" . $_SESSION['ID'] . "'");
+    echo "OK";
 }
 if ($_GET["action"] == "deletePost") {
     $result = query("SELECT *  FROM posts WHERE postID=" . $id);

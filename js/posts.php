@@ -8,7 +8,8 @@ require_once("../backend/config.php");
         var script1 = $.getScript("js/vendor/bootstrap-datetimepicker.min.js"),
                 script2 = $.getScript("js/vendor/bootstrap-multiselect.js"),
                 script3 = $.getScript("js/vendor/jquery.dataTables.min.js"),
-                script4 = $.getScript("js/vendor/jquery.form.min.js");
+                script4 = $.getScript("js/vendor/jquery.form.min.js"),
+                script5 = $.getScript("js/vendor/bootstrap-tagmanager.js");
         $.when(script1, script2, script3, script4).done(function(result2, result1) {
             $('.dropdown input, .dropdown label').click(function(event) {
                 event.stopPropagation();
@@ -188,7 +189,7 @@ require_once("../backend/config.php");
                     });
                     $("#modal-dialog #select-date").datetimepicker();
                     posts.uploadImage();
-                    //posts.uploadYoutube();
+                    posts.uploadYoutube();
 
                 },
                 saveFunction: function() {
@@ -363,7 +364,7 @@ require_once("../backend/config.php");
                         });
                         $("#modal-dialog #select-date").datetimepicker();
                         posts.uploadImage();
-                        //posts.uploadYoutube();
+                        posts.uploadYoutube();
                     },
                     saveFunction: function() {
                         posts.savePost("updatePost", id);
@@ -378,12 +379,16 @@ require_once("../backend/config.php");
                 dataType: "json",
                 type: 'post',
                 beforeSubmit: function(formData, jqForm, options) {
-                    $("#modal-dialog #picture-preview").attr("src", "/img/ajax-loader.gif");
+                    $("#modal-dialog #youtubeupload-button").attr('disabled', '');
+                    $(".btn.delete").attr('disabled', '');
+                    $("#modal-dialog #imageupload-button").toggleClass('loading disabled');
+                    $("#modal-dialog #imageupload-button i").removeClass("icon-upload");
                     return true;
                 },
                 success: function(responseText, statusText, xhr, $form) {
                     if (responseText.error) {
                         if (responseText.error == "<?= $errors['IMAGE_TO_LARGE'] ?>") {
+                            $("#modal-dialog #picture-preview").css("width", "250px");
                             $("#modal-dialog #alert-image-to-large-dialog").show();
                             $('#modal-dialog #picture-preview').attr("src", oldimage);
 
@@ -393,8 +398,20 @@ require_once("../backend/config.php");
                             $('#modal-dialog #picture-preview').attr("src", oldimage);
 
                         }
+                        $("#modal-dialog #imageupload-button").toggleClass('loading disabled');
+                        $("#modal-dialog #imageupload-button i").addClass("icon-upload");
+                        $("#modal-dialog #imageupload-file").val("");
+                        $("#modal-dialog #youtubeupload-button").removeAttr('disabled', '');
+                        $(".btn.delete").removeAttr('disabled', '');
                     } else {
+                        $("#modal-dialog #youtubeupload-button").removeAttr('disabled', '');
+                        $(".btn.delete").removeAttr('disabled', '');
+                        $("#modal-dialog #youtubeupload-button i").removeClass("icon-ok");
+                        $("#modal-dialog #youtubeupload-button i").addClass("icon-upload");
+                        $("#modal-dialog #youtubeupload-file").val("");
+                        $("#modal-dialog #imageupload-button i").addClass("icon-ok");
                         $('#modal-dialog #picture-preview').attr("src", responseText.files[0].url);
+                        $("#modal-dialog #imageupload-button").toggleClass('loading disabled');
                         $("#modal-dialog #link").val("");
                         $("#modal-dialog #link").attr('disabled', '');
                     }
@@ -411,19 +428,73 @@ require_once("../backend/config.php");
             });
         },
         uploadYoutube: function() {
-            $('#modal-dialog #youtube-link').fileupload({
-                url: "backend/ajax_requests.php?action=uploadVideo",
-                dataType: 'json',
-                done: function(e, data) {
-                    $('#modal-dialog #picture-preview').attr("src", "img/no-image.gif");
-                    $("#modal-dialog #link").attr('disabled', '');
+            var oldimage = $('#modal-dialog #picture-preview').attr("src");
+            var options = {
+                target: '#modal-dialog #picture-preview',
+                dataType: "json",
+                type: 'post',
+                beforeSubmit: function(formData, jqForm, options) {
+                    $("#modal-dialog #imageupload-button").attr('disabled', '');
+                    $(".btn.delete").attr('disabled', '');
+                    $("#modal-dialog #youtubeupload-button").toggleClass('loading disabled');
+                    $("#modal-dialog #youtubeupload-button i").removeClass("icon-upload");
+                    return true;
                 },
-                progressall: function(e, data) {
-                    $('#modal-dialog #picture-preview').attr("src", "img/no-image.gif");
+                success: function(responseText, statusText, xhr, $form) {
+                    console.log(responseText);
+                    if (responseText.error) {
+                        if (responseText.error == "<?= $errors['WRONG_IMAGE_TYPE'] ?>") {
+                            $("#modal-dialog #alert-video-wrong-type-dialog").show();
+                            $("#modal-dialog #youtubeupload-button").toggleClass('loading disabled');
+                            $("#modal-dialog #youtubeupload-button i").addClass("icon-upload");
+                            $("#modal-dialog #youtubeupload-file").val("");
+                            $('#modal-dialog #picture-preview').attr("src", oldimage);
+                            $("#modal-dialog #imageupload-button").removeAttr('disabled', '');
+                            $(".btn.delete").removeAttr('disabled', '');
+                        }
+                    } else {
+                        $("#video-tags").tagsManager({
+                            tagClass: "video-tag"
+                        });
+                        $("#video-dialog").modal("show");
+                        $("#video-save-changes").bind("click", function() {
+                            $("#video-dialog").modal("hide");
+                            var videoData = {
+                                "video-tags": $("#video-tags").next().val(),
+                                "video-title": $("#video-title").val(),
+                                "video-category": $("#video-category").val()
+                            };
+                        });
+
+                        $("#modal-dialog #imageupload-button").removeAttr('disabled', '');
+                        $(".btn.delete").removeAttr('disabled', '');
+                        $("#modal-dialog #imageupload-button i").removeClass("icon-ok");
+                        $("#modal-dialog #imageupload-button i").addClass("icon-upload");
+                        $("#modal-dialog #youtubeupload-button").toggleClass('loading disabled');
+                        $("#modal-dialog #imageupload-file").val("");
+                        $("#modal-dialog #youtubeupload-button i").addClass("icon-ok");
+                        $("#modal-dialog #link").val("");
+                        $("#modal-dialog #link").attr('disabled', '');
+                    }
+
+                }
+            };
+            $("#modal-dialog #youtubeupload-button").bind("click", function() {
+                $("#modal-dialog #youtubeupload-file").click();
+            });
+            $("#modal-dialog #youtubeupload-file").change(function() {
+                if ($("#modal-dialog #youtubeupload-file").val() != "") {
+                    $('#modal-dialog #youtubeupload-form').ajaxSubmit(options);
                 }
             });
         },
         enableLink: function() {
+            $("#modal-dialog #youtubeupload-file").val("");
+            $("#modal-dialog #imageupload-file").val("");
+            $("#modal-dialog #youtubeupload-button i").removeClass("icon-ok");
+            $("#modal-dialog #imageupload-button i").removeClass("icon-ok");
+            $("#modal-dialog #youtubeupload-button i").addClass("icon-upload");
+            $("#modal-dialog #imageupload-button i").addClass("icon-upload");
             $("#modal-dialog #link").removeAttr('disabled');
             $('#modal-dialog #picture-preview').attr("src", "/img/no_image.jpg");
         }
