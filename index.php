@@ -26,6 +26,7 @@ require_once("backend/database_functions.php");
         <link rel="stylesheet" type="text/css" href="css/jquery.pnotify.default.css" />
         <link rel="stylesheet" type="text/css" href="css/fullcalendar.css" />
         <link rel="stylesheet" type="text/css" href="css/bootstrap-tagmanager.css" />
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-formhelpers.css" />
     </head>
     <body data-twttr-rendered="true">
         <!--[if lt IE 9]>

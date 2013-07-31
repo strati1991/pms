@@ -113,6 +113,12 @@ if ($_SESSION['role'] > 0) {
                     <button style="margin-left: 10px;" onclick="posts.enableLink()" class="btn btn-warning delete"><i class="icon-trash icosn-white"></i><span style="margin-left: 5px;">Video entfernen</span></button>
                 </div>
             </div>
+            <div class="control-group" id="video-url-container" style="display:none">
+                <label class="control-label" for="link">Video-URL:</label>
+                <div class="controls" style="padding-top: 5px;">
+                    <a target="_blank" id="video-url"></a>
+                </div>
+            </div>
             <div class="control-group">
                 <div class="controls">
                     <button id="video-edit" onclick="posts.editVideo()" class="btn btn-success hide"><i class="icon-edit icosn-white"></i><span style="margin-left: 5px;">Video bearbeiten</span></button>
@@ -290,7 +296,19 @@ if ($_SESSION['role'] > 0) {
                 <div class="control-group">
                     <label class="control-label" for="video-category">Video Kategorie:</label>
                     <div class="controls">
-                        <input type="text" id="video-category" placeholder="z.B. Autos"/>
+                        <div class="bfh-selectbox">
+                            <input type="hidden" name="video-category" id="video-category" value="">
+                            <a class="bfh-selectbox-toggle" role="button" data-toggle="bfh-selectbox" href="#">
+                                <span class="bfh-selectbox-option input-medium" data-option></span>
+                                <b class="caret"></b>
+                            </a>
+                            <div class="bfh-selectbox-options">
+                                <div role="listbox">
+                                    <ul role="option" id="video-categories">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div style="display:none" id="no-video-tags-dialog" class="alert alert-block alert-error">

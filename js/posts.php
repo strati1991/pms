@@ -3,17 +3,15 @@ header("Content-Type: text/javascript; charset=UTF-8");
 require_once("../backend/config.php");
 ?>
 <script type="text/javascript">
-    
-    
-    posts.video.tagsposts.video.tagsposts.video.tagsposts.video.tagsposts.video.tagsposts.video.tags
     var datePicker = undefined;
     view.init = function() {
         var script1 = $.getScript("js/vendor/bootstrap-datetimepicker.min.js"),
                 script2 = $.getScript("js/vendor/bootstrap-multiselect.js"),
                 script3 = $.getScript("js/vendor/jquery.dataTables.min.js"),
                 script4 = $.getScript("js/vendor/jquery.form.min.js"),
-                script5 = $.getScript("js/vendor/bootstrap-tagmanager.js");
-        $.when(script1, script2, script3, script4).done(function(result2, result1) {
+                script5 = $.getScript("js/vendor/bootstrap-tagmanager.js"),
+                script6 = $.getScript("js/vendor/bootstrap-formhelpers-selectbox.js");
+        $.when(script1, script2, script3, script4, script5, script6).done(function(result2, result1) {
             $('.dropdown input, .dropdown label').click(function(event) {
                 event.stopPropagation();
             });
@@ -33,6 +31,12 @@ require_once("../backend/config.php");
 
     };
     var posts = {
+        video: {
+            tags: "",
+            title: "",
+            category: "",
+            url: ""
+        },
         popoverPagesToggle: function(id) {
             if ($("#popover-pages-" + id).hasClass("has-popover")) {
                 $("#popover-pages-" + id).removeClass("has-popover");
@@ -227,7 +231,10 @@ require_once("../backend/config.php");
                     picture: $("#modal-dialog #picture-preview").attr("src") == "/img/no_image.jpg" ? "" : $("#modal-dialog #picture-preview").attr("src"),
                     publishdate: date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     pages: escape(pages),
-                    video_tags: escape(pages),
+                    video_tags: escape(posts.video.tags),
+                    video_title: escape(posts.video.title),
+                    video_category: escape(posts.video.category),
+                    video_url: escape(posts.video.url)
                 },
                 success: function(data) {
                     if (data == "OK") {
@@ -340,6 +347,14 @@ require_once("../backend/config.php");
                     preShowFunction: function() {
                         $("#modal-dialog #message").html(unescape(response.message));
                         $("#modal-dialog #link").val(unescape(response.link));
+                        if (unescape(response.video) != "") {
+                            $("#modal-dialog #youtubeupload-button i").removeClass("icon-upload")
+                            $("#modal-dialog #youtubeupload-button i").addClass("icon-ok");
+                            $("#modal-dialog #video-url").attr("href", "http://www.youtube.com/watch?v=" + unescape(response.video));
+                            $("#modal-dialog #video-url").html("http://www.youtube.com/watch?v=" + unescape(response.video));
+                            $("#modal-dialog #video-url-container").show();
+                            $("#modal-dialog #link").attr('disabled', '');
+                        }
                         if (unescape(response.picture) != "") {
                             $("#modal-dialog #picture-preview").attr("src", unescape(response.picture));
                             $("#modal-dialog #link").attr('disabled', '');
@@ -457,6 +472,7 @@ require_once("../backend/config.php");
                             $(".btn.delete").removeAttr('disabled', '');
                         }
                     } else {
+                        posts.video.url = responseText.files[0].url;
                         posts.editVideo();
                         $("#modal-dialog #imageupload-button").removeAttr('disabled', '');
                         $(".btn.delete").removeAttr('disabled', '');
@@ -476,42 +492,48 @@ require_once("../backend/config.php");
             });
             $("#modal-dialog #youtubeupload-file").change(function() {
                 if ($("#modal-dialog #youtubeupload-file").val() != "") {
+                    $("#modal-dialog #video-url-container").hide();
                     $('#modal-dialog #youtubeupload-form').ajaxSubmit(options);
                 }
             });
         },
         editVideo: function() {
-            $("#video-tags").tagsManager({
-                tagClass: "video-tag"
+            helper.loading();
+            posts.getCategories(function() {
+                $("#video-tags").tagsManager({
+                    tagClass: "video-tag"
+                });
+                $("#modal-dialog").hide();
+                $("#video-dialog").modal("show");
+                $(".modal-backdrop").first().css("z-index", 1500);
+                $("#video-save-changes").bind("click", function() {
+                    setTimeout(function() {
+                        $(".modal-backdrop").css("z-index", 1040);
+                    }, 200);
+
+                    posts.video.tags = $("#video-tags").next().val();
+                    posts.video.title = $("#video-title").val();
+                    posts.video.category = $("#video-category").val();
+                    if (posts.video.title.length === 0) {
+                        $("#no-video-title-dialog").show();
+                        return;
+                    }
+                    if (posts.video.category.length === 0) {
+                        $("#no-video-category-dialog").show();
+                        return;
+                    }
+                    if (posts.video.tags.length === 0) {
+                        $("#no-video-tags-dialog").show();
+                        return;
+                    }
+                    $("#video-dialog").modal("hide");
+                    $("#modal-dialog").modal("show");
+                    $("#modal-dialog").show();
+                    $("#modal-dialog #video-edit").show();
+                });
+                helper.finished();
             });
-            $("#modal-dialog").hide();
-            $("#video-dialog").modal("show");
-            $(".modal-backdrop").first().css("z-index", 1500)
-            $("#video-save-changes").bind("click", function() {
-                setTimeout(function() {
-                    $(".modal-backdrop").css("z-index", 1040);
-                }, 200);
-                
-                posts.video.tags = $("#video-tags").next().val();
-                posts.video.title = $("#video-title").val();
-                posts.video.category = $("#video-category").val();
-                if (videoData.title.length == 0) {
-                    $("#no-video-title-dialog").show();
-                    return;
-                }
-                if (videoData.category.length == 0) {
-                    $("#no-video-category-dialog").show();
-                    return;
-                }
-                if (videoData.tags.length == 0) {
-                    $("#no-video-tags-dialog").show();
-                    return;
-                }
-                $("#video-dialog").modal("hide");
-                $("#modal-dialog").modal("show");
-                $("#modal-dialog").show();
-                $("#modal-dialog #video-edit").show();
-            });
+
         },
         enableLink: function() {
             $("#modal-dialog #youtubeupload-file").val("");
@@ -522,6 +544,19 @@ require_once("../backend/config.php");
             $("#modal-dialog #imageupload-button i").addClass("icon-upload");
             $("#modal-dialog #link").removeAttr('disabled');
             $('#modal-dialog #picture-preview').attr("src", "/img/no_image.jpg");
+            $("#modal-dialog #video-url-container").hide();
+        },
+        getCategories: function(callback) {
+
+            $.ajax("backend/ajax_posts.php?action=getCategories").done(function(response) {
+                response = $.parseJSON(response);
+                var html = "";
+                $.each(response.categories, function(index, value) {
+                    html += "<li><a tabindex='-1' href='#' data-option='" + value.term + "'>" + value.label + "</a></li>";
+                });
+                $("#video-categories").html(html);
+                callback();
+            });
         }
     };
 </script>

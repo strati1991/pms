@@ -10,6 +10,10 @@ session_start();
 $id = $_GET["id"];
 $role = $_GET["role"];
 
+$developerKey = "AI39si6x4grcCzTFYVWsrgufBWrgxd6TsR_XZEw8sxhl8bUNmbUh-wBzwKUjmX6L8eHmNfxUfDS8Vp_BbEAD6XVH0oIa4IBzLw";
+$clientId = "PMS APP";
+$applicationId = "PMS APP video upload";
+
 $facebook = new Facebook($config);
 $user = $facebook->getUser();
 $facebook->setFileUploadSupport(true);
@@ -105,9 +109,10 @@ if ($_GET["action"] == "addPost") {
     $myVideoEntry = new Zend_Gdata_YouTube_VideoEntry();
 
 // create a new Zend_Gdata_App_MediaFileSource object
-    $filesource = $yt->newMediaFileSource($_GET['video']);
+    $filesource = $yt->newMediaFileSource("../" . $_GET['video_url']);
 // set slug header
-    $filesource->setSlug($_GET['video']);
+    $filesource->setSlug("../" . $_GET['video_url']);
+    $filesource->setContentType(mime_content_type("../" . $_GET['video_url']));
     $myVideoEntry->setVideoPrivate();
 
 // add the filesource to the video entry
@@ -117,7 +122,6 @@ if ($_GET["action"] == "addPost") {
     $myVideoEntry->setVideoDescription($_GET['video_title']);
 // The category must be a valid YouTube category!
     $myVideoEntry->setVideoCategory($_GET['video_category']);
-
 // Set keywords. Please note that this must be a comma-separated string
 // and that individual keywords cannot contain whitespace
     $myVideoEntry->SetVideoTags($_GET['video_tags']);
@@ -135,7 +139,7 @@ if ($_GET["action"] == "addPost") {
         echo $e->getMessage();
         exit;
     }
-    query("INSERT IGNORE INTO posts (lastChanged,userID,message,startTime,picture,link) " .
+    query("INSERT IGNORE INTO posts (lastChanged,userID,message,startTime,picture,video,link) " .
             "VALUES (" .
             "NOW()," .
             "'" . $user . "'," .
@@ -182,7 +186,8 @@ if ($_GET["action"] == "getPostByID") {
                 '"lastChanged": "' . $row['lastChanged'] . '",' .
                 '"picture": "' . $row['picture'] . '",' .
                 '"link": "' . $row['link'] . '",' .
-                '"status": "' . $row['status'] . '"' .
+                '"status": "' . $row['status'] . '",' .
+                '"video": "' . $row['video'] . '"' .
                 '}';
     }
     echo $get;
@@ -252,7 +257,7 @@ function notificate($postID, $type, $dataText) {
                      FROM pages
                      JOIN (
                          SELECT posts_on_pages.pageID AS pageID
-                         FROM  `posts` 
+                         FROM  `posts`
                          JOIN posts_on_pages ON posts_on_pages.postID = posts.postID
                          WHERE posts.postID =  '" . $postID . "'
                      ) AS post_pages ON pages.pageID = post_pages.pageID
@@ -308,11 +313,62 @@ if ($_GET["action"] == "getPost") {
     echo '{ "message": "' . mysql_escape_string($row['message']) . '",' .
     '"startTime" :"' . $row['startTime'] . '",' .
     '"picture" :"' . mysql_escape_string($row['picture']) . '",' .
-    '"link" :"' . mysql_escape_string($row['link']) . '"' .
+    '"link" :"' . mysql_escape_string($row['link']) . '",' .
+    '"video": "' . mysql_escape_string($row['video']) . '"' .
     '}';
 }
 
 if ($_GET["action"] == "updatePost") {
+    if ($_GET['video_url'] != "") {
+        require_once 'Zend/Loader.php'; // the Zend dir must be in your include_path
+        Zend_Loader::loadClass('Zend_Gdata_YouTube');
+        Zend_Loader::loadClass('Zend_Gdata_AuthSub');
+        Zend_Loader::loadClass('Zend_Gdata_ClientLogin');
+        $authenticationURL = 'https://www.google.com/accounts/ClientLogin';
+        $httpClient =
+                Zend_Gdata_ClientLogin::getHttpClient(
+                        $username = 'christoph.heidelmann@gmail.com', $password = 'Start123!', $service = 'youtube', $client = null, $source = 'PMS App', // a short string identifying your application
+                        $loginToken = null, $loginCaptcha = null, $authenticationURL);
+        $yt = new Zend_Gdata_YouTube($httpClient, $applicationId, $clientId, $developerKey);
+
+        // create a new VideoEntry object
+        $myVideoEntry = new Zend_Gdata_YouTube_VideoEntry();
+
+// create a new Zend_Gdata_App_MediaFileSource object
+        $filesource = $yt->newMediaFileSource("../" . $_GET['video_url']);
+// set slug header
+        $filesource->setSlug("../" . $_GET['video_url']);
+        $filesource->setContentType(mime_content_type("../" . $_GET['video_url']));
+        $myVideoEntry->setVideoPrivate();
+
+// add the filesource to the video entry
+        $myVideoEntry->setMediaSource($filesource);
+
+        $myVideoEntry->setVideoTitle($_GET['video_title']);
+        $myVideoEntry->setVideoDescription($_GET['video_title']);
+// The category must be a valid YouTube category!
+        $myVideoEntry->setVideoCategory($_GET['video_category']);
+// Set keywords. Please note that this must be a comma-separated string
+// and that individual keywords cannot contain whitespace
+        $myVideoEntry->SetVideoTags($_GET['video_tags']);
+
+
+// upload URI for the currently authenticated user
+        $uploadUrl = 'http://uploads.gdata.youtube.com/feeds/api/users/default/uploads';
+
+        try {
+            $newEntry = $yt->insertEntry($myVideoEntry, $uploadUrl, 'Zend_Gdata_YouTube_VideoEntry');
+        } catch (Zend_Gdata_App_HttpException $httpException) {
+            echo $httpException->getRawResponseBody();
+            exit;
+        } catch (Zend_Gdata_App_Exception $e) {
+            echo $e->getMessage();
+            exit;
+        }
+        $video = $newEntry->getVideoId();
+    } else {
+        $video = "";
+    }
     $result = query("SELECT *  FROM posts WHERE postID=" . $id);
     $row = mysql_fetch_assoc($result);
     if ($_SESSION['ID'] == $row['userID'] || $_SESSION['role'] > 0) {
@@ -323,7 +379,8 @@ if ($_GET["action"] == "updatePost") {
                     "message='" . $_GET["message"] . "'," .
                     "link='" . $_GET["link"] . "'," .
                     "picture='" . $_GET["picture"] . "'," .
-                    "startTime='" . $_GET["publishdate"] . "'" .
+                    "startTime='" . $_GET["publishdate"] . "'," .
+                    "video='" . mysql_escape_string($video) . "'" .
                     "WHERE postID = '" . $id . "'");
             if ($_GET["pages"] != "") {
                 query("DELETE FROM posts_on_pages WHERE postID='" . $id . "'");
@@ -343,5 +400,20 @@ if ($_GET["action"] == "updatePost") {
         }
         echo "OK";
     }
+}
+if ($_GET["action"] == "getCategories") {
+    $xml = simplexml_load_file("http://gdata.youtube.com/schemas/2007/categories.cat");
+    $namespaces = $xml->getNameSpaces(true);
+    //Now we don't have the URL hard-coded
+    $atom = $xml->children($namespaces['atom']);
+    $get = '{ "categories":[';
+    for ($i = 0; $i < sizeof($atom); $i++) {
+        $term = $atom[$i]->attributes()->term;
+        $label = $atom[$i]->attributes()->label;
+        $get = $get . '{ "term" : "' . $term . '" , "label" : "' . $label . '" },';
+    }
+    $get = substr($get, 0, -1);
+    $get = $get . "]}";
+    echo $get;
 }
 ?>

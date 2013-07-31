@@ -12,10 +12,6 @@ $id = $_GET["id"];
 $role = $_GET["role"];
 $username = $_GET["username"];
 
-$developerKey = "AI39si6x4grcCzTFYVWsrgufBWrgxd6TsR_XZEw8sxhl8bUNmbUh-wBzwKUjmX6L8eHmNfxUfDS8Vp_BbEAD6XVH0oIa4IBzLw";
-$clientId = "PMS APP";
-$applicationId = "PMS APP video upload";
-
 $facebook = new Facebook($config);
 $user = $facebook->getUser();
 $name = $facebook->api("/" . $user . "?fields=username");
