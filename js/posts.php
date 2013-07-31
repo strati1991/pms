@@ -221,12 +221,14 @@ require_once("../backend/config.php");
             helper.loading();
             if ($("#modal-dialog #message").val() == "" && $("#modal-dialog #link").val() == "" && $("#modal-dialog #picture").val() === undefined) {
                 $("#modal-dialog #alert-not-filled-dialog").show();
+                helper.finished();
                 return;
             }
             var date = new Date(Date.parse($('#modal-dialog #select-date').data('datetimepicker')._date));
             var jetzt = new Date();
             if (date.getTime() < jetzt.getTime()) {
                 $("#modal-dialog #alert-date-not-correct-dialog").show();
+                helper.finished();
                 return;
             }
             var pages = "";
