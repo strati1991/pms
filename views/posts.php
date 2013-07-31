@@ -110,18 +110,25 @@ if ($_SESSION['role'] > 0) {
                     <form id="youtubeupload-form" style="display:none" action="/backend/ajax_requests.php?action=uploadVideo" method="post"> 
                         <input id="youtubeupload-file" type="file" name="file"/>
                     </form>
-                    <button style="margin-left: 10px;" onclick="posts.enableLink()" class="btn btn-warning delete"><i class="icon-trash icosn-white"></i><span style="margin-left: 5px;">Video entfernen</span></button>
+                    <button style="margin-left: 10px;" onclick="posts.enableLink('video')" class="btn btn-warning delete"><i class="icon-trash icosn-white"></i><span style="margin-left: 5px;">Video entfernen</span></button>
                 </div>
             </div>
             <div class="control-group" id="video-url-container" style="display:none">
-                <label class="control-label" for="link">Video-URL:</label>
+                <label class="control-label" for="link">Video:</label>
                 <div class="controls" style="padding-top: 5px;">
-                    <a target="_blank" id="video-url"></a>
+                    <iframe class="youtube-player" id="video-url" type="text/html" width="320" height="240" src="" allowfullscreen frameborder="0">
+                    </iframe>
                 </div>
             </div>
             <div class="control-group">
                 <div class="controls">
                     <button id="video-edit" onclick="posts.editVideo()" class="btn btn-success hide"><i class="icon-edit icosn-white"></i><span style="margin-left: 5px;">Video bearbeiten</span></button>
+                    <div id="video-not-yet-shown" style="margin-top: 10px;margin-bottom: 0px;;display:none;" class="alert alert-warning">
+                        Das Video wird erst beim späteren editieren des Posts angezeigt. 
+                    </div>
+                    <div id="error-video-not-on-youtube" style="margin-top: 10px;margin-bottom: 0px;display:none;" class="alert alert-error" >
+                        Das Video scheint es anscheinend nicht auf Youtube zu geben. Klicken Sie bitte uf den Play-Button der Video-Vorschau um zu sehen was nicht geklappt hat.
+                    </div>
                 </div>
             </div>
             <div style="display:none" id="alert-video-wrong-type-dialog" class="alert alert-block alert-error">
@@ -138,7 +145,7 @@ if ($_SESSION['role'] > 0) {
                     <form id="imageupload-form" style="display:none" action="/backend/ajax_requests.php?action=uploadImage" method="post"> 
                         <input id="imageupload-file" type="file" name="file"/>
                     </form>
-                    <button style="margin-left: 10px;" onclick="posts.enableLink()" class="btn btn-warning delete"><i class="icon-trash icosn-white"></i><span style="margin-left: 5px;">Bild entfernen</span></button>
+                    <button style="margin-left: 10px;" onclick="posts.enableLink('image')" class="btn btn-warning delete"><i class="icon-trash icosn-white"></i><span style="margin-left: 5px;">Bild entfernen</span></button>
 
                 </div>
             </div>
@@ -208,6 +215,13 @@ if ($_SESSION['role'] > 0) {
                 <label class="control-label" for="picture">Bild:</label>
                 <div class="controls" style="margin-top: 5px;">
                     <img style="width: 200px;" class="img-polaroid" alt="kein Bild" id="picture"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="picture">Video:</label>
+                <div class="controls" style="margin-top: 5px;">
+                    <iframe class="youtube-player" id="video" type="text/html" width="320" height="240" src="" allowfullscreen frameborder="0">
+                    </iframe>
                 </div>
             </div>
             <div class="control-group">

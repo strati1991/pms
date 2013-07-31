@@ -11,6 +11,7 @@ require_once("../backend/config.php");
                 script4 = $.getScript("js/vendor/jquery.form.min.js"),
                 script5 = $.getScript("js/vendor/bootstrap-tagmanager.js"),
                 script6 = $.getScript("js/vendor/bootstrap-formhelpers-selectbox.js");
+        posts.getVideoCategories();
         $.when(script1, script2, script3, script4, script5, script6).done(function(result2, result1) {
             $('.dropdown input, .dropdown label').click(function(event) {
                 event.stopPropagation();
@@ -35,7 +36,8 @@ require_once("../backend/config.php");
             tags: "",
             title: "",
             category: "",
-            url: ""
+            url: "",
+            file: ""
         },
         popoverPagesToggle: function(id) {
             if ($("#popover-pages-" + id).hasClass("has-popover")) {
@@ -155,7 +157,6 @@ require_once("../backend/config.php");
                                 $(".image_" + value).attr("src", response.picture.data.url);
                             });
                         });
-
                         helper.showModal({
                             content: $("#preview-dialog").html(),
                             title: "Post kommentieren",
@@ -165,7 +166,18 @@ require_once("../backend/config.php");
                                 $("#modal-dialog #message").html(unescape(_response.message));
                                 $("#modal-dialog #link").attr("href", unescape(_response.link));
                                 $("#modal-dialog #link").html(unescape(_response.link));
-                                $("#modal-dialog #picture").attr("src", unescape(_response.picture));
+                                console.log(_response.picture);
+                                if(_response.picture == ""){
+                                    $("#modal-dialog #picture").attr("src", "/img/no_image.jpg");
+                                } else {
+                                    $("#modal-dialog #picture").attr("src", unescape(_response.picture));
+                                }
+                                if(_response.video == ""){
+                                    $("#modal-dialog #video").attr("src", "/img/no_image.jpg");
+                                } else {
+                                    $("#modal-dialog #video").attr("src", "http://www.youtube.com/embed/" + unescape(_response.video));
+                                }
+                                
                                 $("#modal-dialog #comments .comment").mouseover(function() {
                                     $(this).find(".delete").show();
                                 });
@@ -206,6 +218,7 @@ require_once("../backend/config.php");
             });
         },
         savePost: function(type, id) {
+            helper.loading();
             if ($("#modal-dialog #message").val() == "" && $("#modal-dialog #link").val() == "" && $("#modal-dialog #picture").val() === undefined) {
                 $("#modal-dialog #alert-not-filled-dialog").show();
                 return;
@@ -231,10 +244,10 @@ require_once("../backend/config.php");
                     picture: $("#modal-dialog #picture-preview").attr("src") == "/img/no_image.jpg" ? "" : $("#modal-dialog #picture-preview").attr("src"),
                     publishdate: date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
                     pages: escape(pages),
-                    video_tags: escape(posts.video.tags),
+                    video_tags: posts.video.tags,
                     video_title: escape(posts.video.title),
                     video_category: escape(posts.video.category),
-                    video_url: escape(posts.video.url)
+                    video_url: escape(posts.video.file)
                 },
                 success: function(data) {
                     if (data == "OK") {
@@ -347,18 +360,22 @@ require_once("../backend/config.php");
                     preShowFunction: function() {
                         $("#modal-dialog #message").html(unescape(response.message));
                         $("#modal-dialog #link").val(unescape(response.link));
+                        $("#modal-dialog #video-edit").hide();
+                        $("#modal-dialog #video-not-yet-shown").hide();
                         if (unescape(response.video) != "") {
                             $("#modal-dialog #youtubeupload-button i").removeClass("icon-upload")
                             $("#modal-dialog #youtubeupload-button i").addClass("icon-ok");
-                            $("#modal-dialog #video-url").attr("href", "http://www.youtube.com/watch?v=" + unescape(response.video));
-                            $("#modal-dialog #video-url").html("http://www.youtube.com/watch?v=" + unescape(response.video));
+                            posts.video.url = unescape(response.video);
+                            $("#modal-dialog #video-url").attr("src", "http://www.youtube.com/embed/" + unescape(response.video));
                             $("#modal-dialog #video-url-container").show();
                             $("#modal-dialog #link").attr('disabled', '');
+                            $("#modal-dialog #video-edit").show();
                         }
                         if (unescape(response.picture) != "") {
                             $("#modal-dialog #picture-preview").attr("src", unescape(response.picture));
                             $("#modal-dialog #link").attr('disabled', '');
                         }
+
                         $("#modal-dialog #picture-preview").show();
                         $("#modal-dialog #picture").val(unescape(response.picture));
                         $("#modal-dialog #publish-date").val(response.startTime);
@@ -398,6 +415,7 @@ require_once("../backend/config.php");
                 dataType: "json",
                 type: 'post',
                 beforeSubmit: function(formData, jqForm, options) {
+                    helper.loading();
                     $("#modal-dialog #youtubeupload-button").attr('disabled', '');
                     $(".btn.delete").attr('disabled', '');
                     $("#modal-dialog #imageupload-button").toggleClass('loading disabled');
@@ -422,6 +440,7 @@ require_once("../backend/config.php");
                         $("#modal-dialog #imageupload-file").val("");
                         $("#modal-dialog #youtubeupload-button").removeAttr('disabled', '');
                         $(".btn.delete").removeAttr('disabled', '');
+                        
                     } else {
                         $("#modal-dialog #youtubeupload-button").removeAttr('disabled', '');
                         $(".btn.delete").removeAttr('disabled', '');
@@ -433,7 +452,10 @@ require_once("../backend/config.php");
                         $("#modal-dialog #imageupload-button").toggleClass('loading disabled');
                         $("#modal-dialog #link").val("");
                         $("#modal-dialog #link").attr('disabled', '');
+                        $("#modal-dialog #video-not-yet-shown").hide();
+                        $("#modal-dialog #error-video-not-on-youtube").hide();
                     }
+                    helper.finished();
 
                 }
             };
@@ -460,7 +482,6 @@ require_once("../backend/config.php");
                     return true;
                 },
                 success: function(responseText, statusText, xhr, $form) {
-                    console.log(responseText);
                     if (responseText.error) {
                         if (responseText.error == "<?= $errors['WRONG_IMAGE_TYPE'] ?>") {
                             $("#modal-dialog #alert-video-wrong-type-dialog").show();
@@ -471,8 +492,13 @@ require_once("../backend/config.php");
                             $("#modal-dialog #imageupload-button").removeAttr('disabled', '');
                             $(".btn.delete").removeAttr('disabled', '');
                         }
+                        helper.finished();
                     } else {
-                        posts.video.url = responseText.files[0].url;
+                        posts.video.file = responseText.files[0].url;
+                        posts.video.url = undefined;
+                        posts.video.category = undefined;
+                        posts.video.title = undefined;
+                        posts.video.tags = undefined;
                         posts.editVideo();
                         $("#modal-dialog #imageupload-button").removeAttr('disabled', '');
                         $(".btn.delete").removeAttr('disabled', '');
@@ -483,8 +509,9 @@ require_once("../backend/config.php");
                         $("#modal-dialog #youtubeupload-button i").addClass("icon-ok");
                         $("#modal-dialog #link").val("");
                         $("#modal-dialog #link").attr('disabled', '');
+                        $("#modal-dialog #video-not-yet-shown").show();
+                        $('#modal-dialog #picture-preview').attr("src", "/img/no_image.jpg");
                     }
-
                 }
             };
             $("#modal-dialog #youtubeupload-button").bind("click", function() {
@@ -493,16 +520,15 @@ require_once("../backend/config.php");
             $("#modal-dialog #youtubeupload-file").change(function() {
                 if ($("#modal-dialog #youtubeupload-file").val() != "") {
                     $("#modal-dialog #video-url-container").hide();
+                    helper.loading();
                     $('#modal-dialog #youtubeupload-form').ajaxSubmit(options);
                 }
             });
         },
         editVideo: function() {
             helper.loading();
-            posts.getCategories(function() {
-                $("#video-tags").tagsManager({
-                    tagClass: "video-tag"
-                });
+            posts.resetVideoDataForm();
+            posts.getVideoData(function() {
                 $("#modal-dialog").hide();
                 $("#video-dialog").modal("show");
                 $(".modal-backdrop").first().css("z-index", 1500);
@@ -528,26 +554,35 @@ require_once("../backend/config.php");
                     }
                     $("#video-dialog").modal("hide");
                     $("#modal-dialog").modal("show");
+                    $("#modal-dialog #imageupload-file").val("");
                     $("#modal-dialog").show();
                     $("#modal-dialog #video-edit").show();
                 });
-                helper.finished();
             });
+            helper.finished();
+        },
+        enableLink: function(type) {
+            if (type == "video") {
+                $("#modal-dialog #youtubeupload-file").val("");
+                $("#modal-dialog #youtubeupload-button i").removeClass("icon-ok");
+                $("#modal-dialog #youtubeupload-button i").addClass("icon-upload");
+                $("#modal-dialog #video-url-container").hide();
+                $("#modal-dialog #video-not-yet-shown").hide();
+                $("#modal-dialog #video-edit").hide();
+                $("#modal-dialog #error-video-not-on-youtube").hide();
+            } else {
+                $("#modal-dialog #imageupload-file").val("");
+                $("#modal-dialog #imageupload-button i").removeClass("icon-ok");
+                $("#modal-dialog #imageupload-button i").addClass("icon-upload");
+                $('#modal-dialog #picture-preview').attr("src", "/img/no_image.jpg");
+            }
+            if (!$("#modal-dialog #imageupload-button i").hasClass("icon-ok") && !$("#modal-dialog #youtubeupload-button i").hasClass("icon-ok")) {
+                $("#modal-dialog #link").removeAttr('disabled');
+            }
+
 
         },
-        enableLink: function() {
-            $("#modal-dialog #youtubeupload-file").val("");
-            $("#modal-dialog #imageupload-file").val("");
-            $("#modal-dialog #youtubeupload-button i").removeClass("icon-ok");
-            $("#modal-dialog #imageupload-button i").removeClass("icon-ok");
-            $("#modal-dialog #youtubeupload-button i").addClass("icon-upload");
-            $("#modal-dialog #imageupload-button i").addClass("icon-upload");
-            $("#modal-dialog #link").removeAttr('disabled');
-            $('#modal-dialog #picture-preview').attr("src", "/img/no_image.jpg");
-            $("#modal-dialog #video-url-container").hide();
-        },
-        getCategories: function(callback) {
-
+        getVideoCategories: function() {
             $.ajax("backend/ajax_posts.php?action=getCategories").done(function(response) {
                 response = $.parseJSON(response);
                 var html = "";
@@ -555,8 +590,42 @@ require_once("../backend/config.php");
                     html += "<li><a tabindex='-1' href='#' data-option='" + value.term + "'>" + value.label + "</a></li>";
                 });
                 $("#video-categories").html(html);
-                callback();
             });
+        },
+        getVideoData: function(callback) {
+            if (posts.video.url === undefined) {
+                $("#video-tags").tagsManager({
+                    tagClass: "video-tag",
+                    prefilled: posts.video.tags
+                });
+                $("#video-category").val(posts.video.category);
+                $("#video-title").val(posts.video.title);
+                $(".bfh-selectbox-option.input-medium").attr("data-option", posts.video.category);
+                $(".bfh-selectbox-option.input-medium").html($("#video-categories li a[data-option='" + posts.video.category + "']").html());
+                callback();
+            } else {
+                $.ajax("backend/ajax_posts.php?action=getVideoData&id=" + posts.video.url).done(function(response) {
+                    if (response != "<?= $errors['NOT_YET_UPLOADED'] ?>") {
+                        response = $.parseJSON(response);
+                        console.log(response);
+                        $("#video-tags").tagsManager({
+                            tagClass: "video-tag",
+                            prefilled: response.tags
+                        });
+                        $("#video-category").val(response.category);
+                        $("#video-title").val(response.title);
+                        $(".bfh-selectbox-option.input-medium").attr("data-option", response.category);
+                        $(".bfh-selectbox-option.input-medium").html($("#video-categories li a[data-option='" + response.category + "']").html());
+                        callback();
+                    } else {
+                        $("#modal-dialog #error-video-not-on-youtube").show();
+                    }
+                });
+            }
+        },
+        resetVideoDataForm: function() {
+            $("#video-title").val("");
+            $("#video-title").val("");
         }
     };
 </script>

@@ -14,6 +14,7 @@ $errors['NOT_A_PAGE'] = '-5';
 $errors['NOT_A_USER'] = '-6';
 $errors['IMAGE_TO_LARGE'] = '-7';
 $errors['WRONG_IMAGE_TYPE'] = '-8';
+$errors['NOT_YET_UPLOADED'] = '-9';
 $notifications = array();
 $notifications['comment'] = '1';
 $notifications['post_deletet'] = '2';
