@@ -54,9 +54,10 @@ if ($role != "0") {
             $post_data['link'] = $row['link'];
         }
         if ($row['video']) {
-            $post_data['link'] = "http://www.youtube.com/watch?v="  . $row['video'];
-            $post_data['source'] = "http://www.youtube.com/v/"  . $row['video'];
-            $post_data['picture'] = "http://img.youtube.com/vi/"  . $row['video'] . '/0.jpg';
+            $post_data['link'] = "http://www.youtube.com/watch?v=" . $row['video'];
+            $post_data['source'] = "http://www.youtube.com/v/" . $row['video'];
+            $post_data['picture'] = "http://img.youtube.com/vi/" . $row['video'] . '/0.jpg';
+            releaseVideo($row['video']);
         }
         $my_pages = $facebook->api("/me/accounts");
         $my_pages = $my_pages["data"];
@@ -85,6 +86,7 @@ if ($role != "0") {
                 exit;
             }
         }
+
         echo "OK";
     }
     if ($_GET["action"] == "statusPost") {
@@ -326,6 +328,8 @@ if ($_GET["action"] == "getCategories") {
 }
 
 function initYoutube() {
+
+    // Holt den Anfragetoken
     $developerKey = "AI39si6x4grcCzTFYVWsrgufBWrgxd6TsR_XZEw8sxhl8bUNmbUh-wBzwKUjmX6L8eHmNfxUfDS8Vp_BbEAD6XVH0oIa4IBzLw";
     $clientId = "PMS APP";
     $applicationId = "PMS APP video upload";
@@ -340,16 +344,18 @@ function initYoutube() {
                     $loginToken = null, $loginCaptcha = null, $authenticationURL);
     return new Zend_Gdata_YouTube($httpClient, $applicationId, $clientId, $developerKey);
 }
+
 function releaseVideo($id) {
     $yt = initYoutube();
     try {
-            $videoEntry = $yt->getVideoEntry($id);
-            $videoEntry->setVideoPublic();
-            $videoEntry->save();
-        } catch (Zend_Gdata_App_HttpException $http) {
-            echo $errors['NOT_YET_UPLOADED'];
-        }
+        $videoEntry = $yt->getVideoEntry($id, null, true);
+        $videoEntry->setVideoPublic();
+        $videoEntry->save();
+    } catch (Zend_Gdata_App_HttpException $http) {
+        echo $errors['NOT_YET_UPLOADED'];
+    }
 }
+
 function uploadYoutube() {
     if ($_GET['video_url'] != "") {
         $yt = initYoutube();
@@ -387,6 +393,7 @@ function uploadYoutube() {
             echo $e->getMessage();
             exit;
         }
+        unlink("../" . $_GET['video_url']);
         return $newEntry->getVideoId();
     } else {
         return "";

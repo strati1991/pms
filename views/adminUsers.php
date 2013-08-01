@@ -19,7 +19,6 @@ if ($_SESSION['role'] == "0") {
         <button class="btn has-tooltip-bottom" style="float:right"  title="User hinzufügen" onclick="users.addUser()"><i class="icon-plus icosn-white"></i></button>
         <h1>Administer Users</h1>
     </div>
-
     <table id="userlist" class="table table-hover table-bordered view-content" style="display:none;">
         <thead>
             <tr>
@@ -31,6 +30,7 @@ if ($_SESSION['role'] == "0") {
                 <th>Facebook-ID</th>
                 <th>Role</th>
                 <th>Pages</th>
+                <th>Customer</th>
             </tr>
         </thead>
         <tbody>
@@ -69,6 +69,21 @@ if ($_SESSION['role'] == "0") {
                             </div>
                         </div>
                     </td>
+
+                    <td style="text-align: center;padding-top: 0;">
+                        <?php if ($row['role'] == 0) {
+                            ?>
+                            <div class="btn-toolbar" style="width: 60px;float: left;">
+                                <div class="btn-group">
+                                    <button title="Dem User ein Kunden zuweisen" onclick="users.assingnCustomer('<?= $row['id'] ?>')" class="btn has-tooltip-left"><i class="icon-edit icosn-white"></i></button>
+                                </div>                               
+                            </div>
+                             <span style="float: left;margin-top: 16px;"><?= $row['cname'] == '' ? 'Nicht zugewiesen' : $row['cname'] ?></span>
+                            <?php
+                        }
+                        ?>
+                    </td>
+
                 </tr>
                 <?php
             }
@@ -95,17 +110,17 @@ if ($_SESSION['role'] == "0") {
         </div>
         <div style="display:none" id="modal-facebook-name-error" class="alert alert-block alert-error">
             <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
-           <span  class="text-error">du musst einen Usernamen eingeben!</span>
+            <span  class="text-error">du musst einen Usernamen eingeben!</span>
         </div>
         <form class="form-horizontal">
             <fieldset>
                 <div class="control-group">
                     <label class="control-label" for="modal-facebook-name">Geben Sie den Facebook-Usernamen ein:</label>
                     <div class="controls" style="margin-top: 5px;">
-                       <input title="Der Username ist das was am Ende</br>der URL angezeigt wird,</br>wenn man auf das Facebook-Profil</br>des jeweiligen Users geht" type="text" id="modal-facebook-name" class="has-tooltip-bottom" placeholder="z.B. hans.maier">
+                        <input title="Der Username ist das was am Ende</br>der URL angezeigt wird,</br>wenn man auf das Facebook-Profil</br>des jeweiligen Users geht" type="text" id="modal-facebook-name" class="has-tooltip-bottom" placeholder="z.B. hans.maier">
                     </div>
                 </div>
-                 <div class="control-group">
+                <div class="control-group">
                     <label class="control-label" for="modal-facebook-name">Rolle festlegen:</label>
                     <div class="controls" style="margin-top: 5px;">
                         <div id="select-role-add" class="btn-group" data-toggle="buttons-radio">
@@ -117,9 +132,9 @@ if ($_SESSION['role'] == "0") {
                 </div>
             </fieldset>
         </form>
-        
-        
-       
+
+
+
     </div>
 
     <div id="show-pages" style="display:none;overflow: hidden">
