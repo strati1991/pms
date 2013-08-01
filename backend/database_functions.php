@@ -28,7 +28,7 @@ function userRole($id) {
 }
 
 function listUsers() {
-    $result = query("SELECT *,customers.name as cname FROM users join customers on users.customers = customers.id", $link);
+    $result = query("SELECT *, customer.name as cname,users.id as facebookid FROM users left join customer on users.customer = customer.id", $link);
     if (!$result) {
         return $errors['DATABASE_CON']; //not in system
     }

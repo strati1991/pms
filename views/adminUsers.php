@@ -43,15 +43,15 @@ if ($_SESSION['role'] == "0") {
                         <td style="text-align: center;padding-top:0">
                             <div class="btn-toolbar">
                                 <div class="btn-group">
-                                    <button title="Löschen" class="btn has-tooltip-bottom" onclick="users.deleteUser('<?= $row['id'] ?>');"><i class="icon-minus icosn-white"></i></button>
-                                    <button title="Rolle ändern" class="btn has-tooltip-bottom" onclick="users.changeRole('<?= $row['id'] ?>');"><i class="icon-user icosn-white"></i></button>
+                                    <button title="Löschen" class="btn has-tooltip-bottom" onclick="users.deleteUser('<?= $row['facebookid'] ?>');"><i class="icon-minus icosn-white"></i></button>
+                                    <button title="Rolle ändern" class="btn has-tooltip-bottom" onclick="users.changeRole('<?= $row['facebookid'] ?>');"><i class="icon-user icosn-white"></i></button>
                                 </div>
                             </div>
                         </td>
                     <?php }
                     ?>
-                    <td id="name_<?= $row['id'] ?>"><a class="has-tooltip-bottom" title="Link zur Facebook-Seite des Users" style="color: #3b5998;" href="https://www.facebook.com/<?= $row['id'] ?>" target="_blank"><?= $row['username'] ?></a></td>
-                    <td><?= $row['id'] ?></td>
+                    <td id="name_<?= $row['facebookid'] ?>"><a class="has-tooltip-bottom" title="Link zur Facebook-Seite des Users" style="color: #3b5998;" href="https://www.facebook.com/<?= $row['facebookid'] ?>" target="_blank"><?= $row['username'] ?></a></td>
+                    <td><?= $row['facebookid'] ?></td>
                     <td data-role="<?= $row['role'] ?>" id="role_<?= $row['id'] ?>">
                         <?
                         if ($row['role'] == 0) {
@@ -65,7 +65,7 @@ if ($_SESSION['role'] == "0") {
                     <td style="text-align: center;padding-top:0">
                         <div class="btn-toolbar">
                             <div class="btn-group">
-                                <button title="Der User darf auf folgenden</br>Seiten posten und/oder freigeben" class="btn has-tooltip-left" onclick="users.showPages('<?= $row['id'] ?>',<?= $row['role'] ?>);"><i class="icon-list icosn-white"></i></button>
+                                <button title="Der User darf auf folgenden</br>Seiten posten und/oder freigeben" class="btn has-tooltip-left" onclick="users.showPages('<?= $row['facebookid'] ?>',<?= $row['role'] ?>);"><i class="icon-list icosn-white"></i></button>
                             </div>
                         </div>
                     </td>
@@ -75,7 +75,7 @@ if ($_SESSION['role'] == "0") {
                             ?>
                             <div class="btn-toolbar" style="width: 60px;float: left;">
                                 <div class="btn-group">
-                                    <button title="Dem User ein Kunden zuweisen" onclick="users.assingnCustomer('<?= $row['id'] ?>')" class="btn has-tooltip-left"><i class="icon-edit icosn-white"></i></button>
+                                    <button title="Dem User ein Kunden zuweisen" onclick="users.assingnCustomer('<?= $row['facebookid'] ?>')" class="btn has-tooltip-left"><i class="icon-edit icosn-white"></i></button>
                                 </div>                               
                             </div>
                              <span style="float: left;margin-top: 16px;"><?= $row['cname'] == '' ? 'Nicht zugewiesen' : $row['cname'] ?></span>
