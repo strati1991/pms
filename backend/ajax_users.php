@@ -61,7 +61,7 @@ if ($_SESSION['role'] > "1") {
             $insert_pages = substr($insert_pages, 0, -1);
             query($insert_pages, $link);
         }
-        query("INSERT INTO users VALUES ('" . $id['id'] . "','" . $role . "','" . $username . "') ON DUPLICATE KEY UPDATE username='" . $username . "'");
+        query("INSERT INTO users VALUES ('" . $id['id'] . "','" . $role . "','" . $username . "',0) ON DUPLICATE KEY UPDATE username='" . $username . "'");
         query("DELETE FROM register_notification WHERE userName='" . $username . "'");
         echo "OK";
     }
