@@ -3,8 +3,9 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ALL || E_STRICT);
 require_once("../facebook-sdk/facebook.php");
-require_once("../backend/config.php");
 require_once("../backend/database_functions.php");
+require_once("../backend/config.php");
+
 
 session_start();
 
@@ -82,12 +83,14 @@ if ($_GET["action"] == "createSession") {
     $num_results = mysql_num_rows($result);
     if ($num_results == 0) {
         echo $errors['NOT_IN_DATABASE'];
+        exit;
     }
     while ($row = mysql_fetch_assoc($result)) {
         $_SESSION['ID'] = $user;
         $_SESSION['role'] = $row['role'];
+        $_SESSION['customer'] = $row['customer'];
         $_SESSION['username'] = $row['username'];
-        echo ' { "id": "' . $user . '", "role": "' . $row['role'] . '", "username": "' . $row['username'] . '"}';
+        echo ' { "id": "' . $user . '", "role": "' . $row['role'] . '", "username": "' . $row['username'] . '", "customer": "' . $row['customer'] . '"}';
     }
 }
 if ($_GET["action"] == "getNotifications") {

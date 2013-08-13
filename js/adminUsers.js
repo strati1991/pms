@@ -114,11 +114,11 @@ var users = {
                     $("#modal-dialog #select-role-add-error").show();
                     return;
                 }
-                $("#loading-screen").fadeIn();
+                helper.loading();
                 $.ajax({
                     url: "backend/ajax_users.php?action=add&username=" + $("#modal-dialog #modal-facebook-name").val() + "&role=" + $("#modal-dialog #select-role-add .active").val(),
                     success: function(data) {
-                        $("#loading-screen").fadeOut();
+                        helper.finished();
                         if (data == "OK") {
                             $('#modal-dialog').modal('hide');
                             helper.load("adminUsers");
@@ -174,5 +174,27 @@ var users = {
     },
     refreshPage: function() {
         helper.load("adminUsers");
+    },
+    assignCustomer: function(id){
+        helper.showModal({
+            content: $("#change-customer").html(),
+            saveLabel: "speichern",
+            title: "Kunde zuweisen",
+            saveFunction: function() {
+                helper.loading();
+                $.ajax({
+                    url: "backend/ajax_users.php?action=change_customer&id=" + id + "&customer=" + $("#modal-dialog #customer option:selected").val(),
+                    success: function(data) {
+                        helper.finished();
+                        if (data == "OK") {
+                            $('#modal-dialog').modal('hide');
+                            helper.load("adminUsers");
+                        } else {
+                            helper.handleError(data);
+                        }
+                    }
+                })
+            }
+        });
     }
 };

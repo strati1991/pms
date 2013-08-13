@@ -3,8 +3,9 @@
 ini_set('display_errors', 'On');
 error_reporting(E_all || E_STRICT);
 require_once("../facebook-sdk/facebook.php");
-require_once("../backend/config.php");
 require_once("../backend/database_functions.php");
+require_once("../backend/config.php");
+
 session_start();
 
 $id = $_GET["id"];
@@ -43,8 +44,7 @@ if ($role != "0") {
         }
         if ($row['startTime'] && strtotime($row['startTime']) != "") {
             $post_data['published'] = 'false';
-            $date = date_parse_from_format('Y-d-m H:i:s', $row['startTime']);
-            $time = mktime($date['hour'], $date['minute'], $date['second'], $date['month'], $date['day'], $date['year']);
+            $time = strtotime($row['startTime']);
             $post_data['scheduled_publish_time'] = $time;
         }
         if ($row['picture']) {
@@ -74,16 +74,14 @@ if ($role != "0") {
                     echo $e->getMessage();
                     exit;
                 }
-                echo "OK";
-                exit;
             } else {
                 $post_url = '/' . $row['pageID'] . '/feed';
-            }
-            try {
-                $facebook->api($post_url, 'post', $post_data);
-            } catch (FacebookApiException $e) {
-                echo $e->getMessage();
-                exit;
+                try {
+                    $facebook->api($post_url, 'post', $post_data);
+                } catch (FacebookApiException $e) {
+                    echo $e->getMessage();
+                    exit;
+                }
             }
         }
 
@@ -209,30 +207,7 @@ if ($_GET["action"] == "getComments") {
     echo $get;
 }
 
-function notificate($postID, $type, $dataText) {
-    $result = query("SELECT userID
-                FROM (
-                     SELECT DISTINCT userID
-                     FROM pages
-                     JOIN (
-                         SELECT posts_on_pages.pageID AS pageID
-                         FROM  `posts`
-                         JOIN posts_on_pages ON posts_on_pages.postID = posts.postID
-                         WHERE posts.postID =  '" . $postID . "'
-                     ) AS post_pages ON pages.pageID = post_pages.pageID
-                 ) AS users_with_page
-            JOIN users ON users.id = users_with_page.userID
-            WHERE role >0 and userID <> '" . $_SESSION['ID'] . "'");
-    while ($row = mysql_fetch_assoc($result)) {
-        query("INSERT IGNORE INTO `notifications`(`for`, `type`, `dataID`,`dataText`) " .
-                "VALUES (" .
-                $row['userID'] . "," .
-                $type . "," .
-                $postID . "," .
-                "'" . mysql_real_escape_string($dataText) . "'" .
-                ")");
-    }
-}
+
 
 if ($_GET["action"] == "addComment") {
     query("INSERT IGNORE INTO comments (postID,userID,text) " .
@@ -326,6 +301,21 @@ if ($_GET["action"] == "getCategories") {
     $get = $get . "]}";
     echo $get;
 }
+if ($_GET["action"] == "getVideoData") {
+    if ($_GET['id'] != "") {
+        $yt = initYoutube();
+        try {
+            $videoEntry = $yt->getVideoEntry($_GET['id']);
+            echo '{' .
+            '"category" : "' . $videoEntry->getVideoCategory() . '" ,' .
+            '"tags" : "' . implode(", ", $videoEntry->getVideoTags()) . '" ,' .
+            '"title" : "' . $videoEntry->getVideoTitle() . '" ' .
+            '}';
+        } catch (Zend_Gdata_App_HttpException $http) {
+            echo $errors['NOT_YET_UPLOADED'];
+        }
+    }
+}
 
 function initYoutube() {
 
@@ -400,19 +390,47 @@ function uploadYoutube() {
     }
 }
 
-if ($_GET["action"] == "getVideoData") {
-    if ($_GET['id'] != "") {
-        $yt = initYoutube();
-        try {
-            $videoEntry = $yt->getVideoEntry($_GET['id']);
-            echo '{' .
-            '"category" : "' . $videoEntry->getVideoCategory() . '" ,' .
-            '"tags" : "' . implode(", ", $videoEntry->getVideoTags()) . '" ,' .
-            '"title" : "' . $videoEntry->getVideoTitle() . '" ' .
-            '}';
-        } catch (Zend_Gdata_App_HttpException $http) {
-            echo $errors['NOT_YET_UPLOADED'];
-        }
+function notificate($postID, $type, $dataText) {
+    $result = query("SELECT userID
+                FROM (
+                     SELECT DISTINCT userID
+                     FROM pages
+                     JOIN (
+                         SELECT posts_on_pages.pageID AS pageID
+                         FROM  `posts`
+                         JOIN posts_on_pages ON posts_on_pages.postID = posts.postID
+                         WHERE posts.postID =  '" . $postID . "'
+                     ) AS post_pages ON pages.pageID = post_pages.pageID
+                 ) AS users_with_page
+            JOIN users ON users.id = users_with_page.userID
+            WHERE userID <> '" . $_SESSION['ID'] . "'");
+    while ($row = mysql_fetch_assoc($result)) {
+        query("INSERT IGNORE INTO `notifications`(`for`, `type`, `dataID`,`dataText`) " .
+                "VALUES (" .
+                $row['userID'] . "," .
+                $type . "," .
+                $postID . "," .
+                "'" . mysql_real_escape_string($dataText) . "'" .
+                ")");
+        $header = 'From: message@pms.social-media-hosting.com' . "\r\n" .
+                'Reply-To: christoph.heidelmann@akom360.de' . "\r\n" .
+                'X-Mailer: PHP/' . phpversion() . "\r\n" .
+                'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+                'MIME-Version: 1.0' . "\r\n";
+        $message = '
+        <html>
+        <head>
+          <title>PMS Benachrichtigung</title>
+        </head>
+        <body>' .
+                urlencode($dataText) . "<a href='http://pms.social-media-hosting.com/?showpost=" . $postID . "'>gehe zu</a>"
+                . '</body>
+        </html>
+        ';
+        $result_email = query("SELECT email FROM users where id=" . $row['userID']);
+        $row_email = mysql_fetch_assoc($result_email);
+        mail($row_email['email'], 'PMS Benachrichtigung', $message, $header);
     }
 }
+
 ?>

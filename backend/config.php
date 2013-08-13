@@ -3,6 +3,16 @@
 $config = array();
 $config['appId'] = '192351964261671';
 $config['secret'] = '2c0ce846356ab46e072b68aae2bcc3db';
+if (!$_SESSION['role']) {
+    $result = query("SELECT role FROM users WHERE id =" . $_SESSION['ID']); 
+    $row = mysql_fetch_assoc($result);
+    print_r($row);
+    if ($row['role'] == 0) {
+        $config['scope'] = 'photo_upload,email';
+    } else {
+        $config['scope'] = 'email,publish_stream,manage_pages,user_photos,photo_upload';
+    }
+}
 $config['scope'] = 'email,publish_stream,manage_pages,user_photos,photo_upload';
 $config['fileUpload'] = 'true';
 $errors = array();

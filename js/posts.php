@@ -206,7 +206,7 @@ require_once("../backend/config.php");
                         }
 
                     });
-                    $("#modal-dialog #select-date").datetimepicker();
+                    var datetime = $("#modal-dialog #select-date").datetimepicker();
                     posts.uploadImage();
                     posts.uploadYoutube();
 
@@ -244,7 +244,7 @@ require_once("../backend/config.php");
                     message: $("#modal-dialog #message").val(),
                     link: $("#modal-dialog #link").val(),
                     picture: $("#modal-dialog #picture-preview").attr("src") == "/img/no_image.jpg" ? "" : $("#modal-dialog #picture-preview").attr("src"),
-                    publishdate: date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+                    publishdate: $('#modal-dialog #publish-date').val(),
                     pages: escape(pages),
                     video_tags: posts.video.tags,
                     video_title: escape(posts.video.title),

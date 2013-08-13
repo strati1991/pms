@@ -15,19 +15,19 @@ require_once("backend/config.php");
             oauth: true
         });
         FB.getLoginStatus(function(response) {
-            if (response.status === 'connected') {
+            if (response.status == 'connected') {
                 var uid = response.authResponse.userID;
                 accessToken = response.authResponse.accessToken;
                 updateUserAndMenu();
                 $('#login-button').hide()
                 $('#logout-button').show();
-            } else if (response.status === 'not_authorized') {
-                helper.load("welcome");
+            } else if (response.status == 'not_authorized') {
+                login();
                 $("#loading-screen").fadeOut();
                 $('#login-button').show()
                 $('#logout-button').hide();
             } else {
-                helper.load("welcome");
+                login();
                 $("#loading-screen").fadeOut();
                 $('#login-button').show()
                 $('#logout-button').hide();

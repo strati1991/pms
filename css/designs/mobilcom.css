@@ -1,0 +1,131 @@
+/* 
+    Document   : mobilcom
+    Created on : 13.08.2013, 11:04:46
+    Author     : heidelmann
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+body{
+    padding-top: 64px;
+    background: rgb(183,213,20); /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNiN2Q1MTQiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI5OSUiIHN0b3AtY29sb3I9IiM4Y2I5MWMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+    background: -moz-radial-gradient(center, ellipse cover,  rgba(183,213,20,1) 0%, rgba(140,185,28,1) 99%); /* FF3.6+ */
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(183,213,20,1)), color-stop(99%,rgba(140,185,28,1))); /* Chrome,Safari4+ */
+    background: -webkit-radial-gradient(center, ellipse cover,  rgba(183,213,20,1) 0%,rgba(140,185,28,1) 99%); /* Chrome10+,Safari5.1+ */
+    background: -o-radial-gradient(center, ellipse cover,  rgba(183,213,20,1) 0%,rgba(140,185,28,1) 99%); /* Opera 12+ */
+    background: -ms-radial-gradient(center, ellipse cover,  rgba(183,213,20,1) 0%,rgba(140,185,28,1) 99%); /* IE10+ */
+    background: radial-gradient(ellipse at center,  rgba(183,213,20,1) 0%,rgba(140,185,28,1) 99%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b7d514', endColorstr='#8cb91c',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+
+}
+#navbar{
+    background: rgb(47,70,110); /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzJmNDY2ZSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMyMTMxNGQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background: -moz-linear-gradient(top,  rgba(47,70,110,1) 0%, rgba(33,49,77,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(47,70,110,1)), color-stop(100%,rgba(33,49,77,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(47,70,110,1) 0%,rgba(33,49,77,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(47,70,110,1) 0%,rgba(33,49,77,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(47,70,110,1) 0%,rgba(33,49,77,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(47,70,110,1) 0%,rgba(33,49,77,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2f466e', endColorstr='#21314d',GradientType=0 ); /* IE6-8 */
+}
+#navbar .nav li{
+    padding: 8px 0px;
+}
+
+#navbar #user-info{
+    padding: 16px 10px;
+}
+.navbar-inverse .nav>li>a{
+    color:white;
+}
+#footer{
+    position: absolute;
+    bottom: 0px;
+    z-index: -1;
+    left: -450px;
+    height: 403px;
+    width: 1944px;
+}
+h1,h2,h3{
+    color:#83b224;
+}
+.modal{
+    border-radius: 0;
+    -webkit-box-shadow: 11px 10px 0px #1b2940;	/* webkit browser*/ 
+    -moz-box-shadow: 11px 10px 0px #1b2940;	/* firefox */ 
+    box-shadow: 11px 10px 0px #1b2940;
+}
+#inner-content{
+    border-radius: 0;
+}
+.control-label{
+    color: #1b2940;
+}
+/* Large desktop */
+@media (min-width: 1200px) { 
+    #footer{
+        left: -450px;
+    }
+}
+
+/* Portrait tablet to landscape and desktop */
+@media (min-width: 768px) and (max-width: 979px) {
+    body{
+        padding-top: 0;
+    }
+    #footer{
+        left: -380px;
+        width: 1500px;
+    }
+    #logo{
+        display: none;
+    }
+    #navbar .nav li{
+        padding: 0 !important;
+    }
+    #user-info{
+        padding: 8px 20px 10px !important;
+    }
+}
+
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) {
+    body{
+        padding-top: 0;
+    }
+    #footer{
+       display:none;
+    }
+    #logo{
+        display: none;
+    }
+    #user-info{
+        padding: 8px 20px 10px !important;
+    }
+    #navbar .nav li{
+        padding: 0;
+    }
+}
+
+/* Landscape phones and down */
+@media (max-width: 480px) { 
+    body{
+        padding-top: 0;
+    }
+    #footer{
+       display:none;
+    }
+    #logo{
+        display: none;
+    }
+    #user-info{
+        padding: 8px 20px 10px !important;
+    }
+    #navbar .nav li{
+        padding: 0;
+    }
+}

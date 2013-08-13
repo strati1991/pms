@@ -75,7 +75,7 @@ if ($_SESSION['role'] == "0") {
                             ?>
                             <div class="btn-toolbar" style="width: 60px;float: left;">
                                 <div class="btn-group">
-                                    <button title="Dem User ein Kunden zuweisen" onclick="users.assingnCustomer('<?= $row['facebookid'] ?>')" class="btn has-tooltip-left"><i class="icon-edit icosn-white"></i></button>
+                                    <button title="Dem User ein Kunden zuweisen" onclick="users.assignCustomer('<?= $row['facebookid'] ?>')" class="btn has-tooltip-left"><i class="icon-edit icosn-white"></i></button>
                                 </div>                               
                             </div>
                              <span style="float: left;margin-top: 16px;"><?= $row['cname'] == '' ? 'Nicht zugewiesen' : $row['cname'] ?></span>
@@ -164,11 +164,24 @@ if ($_SESSION['role'] == "0") {
         </div>
         <label>Dem User <span class="modal-username"></span></label>
         <label>folgende Seite zuweisen:</label>
-        <select id="multiselect" class="multiselect" multiple="multiple">
+        <select id="multiselect" class="multiselect" multiple="multiple" style="width:400px;height:400px">
             <?php
-            $result = query("SELECT * FROM pages WHERE userID='" . $_SESSION['ID'] . "'");
+            $result = query("SELECT * FROM pages order by pageName");
             while ($row = mysql_fetch_assoc($result)) {
                 ?> <option value="<?= $row['pageID'] ?>"><?= $row['pageName'] ?></option>
+                <?php
+            }
+            ?>
+        </select>
+    </div>
+    <div id="change-customer" style="display:none;overflow: hidden">
+        <label>Dem User <span class="modal-username"></span></label>
+        <label>einen der Kunden zuweisen:</label>
+        <select id="customer" class="multiselect">
+            <?php
+            $result = query("SELECT * FROM customer");
+            while ($row = mysql_fetch_assoc($result)) {
+                ?> <option value="<?= $row['id'] ?>"><?= $row['name'] ?></option>
                 <?php
             }
             ?>

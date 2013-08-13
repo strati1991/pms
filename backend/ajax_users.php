@@ -3,8 +3,8 @@
 ini_set('display_errors', 'On');
 error_reporting(E_all || E_STRICT);
 require_once("../facebook-sdk/facebook.php");
-require_once("../backend/config.php");
 require_once("../backend/database_functions.php");
+require_once("../backend/config.php");
 session_start();
 
 $id = $_GET["id"];
@@ -53,13 +53,16 @@ if ($_SESSION['role'] > "1") {
                 $perms = $value['perms'];
                 foreach ($perms as $perm) {
                     if ($perm == "CREATE_CONTENT") {
-                        $insert_pages = $insert_pages . "('" . $id['id'] . "','" . $value['id'] . "','" . $value['name'] . "'),";
-                        break;
+                        if (mysql_num_rows(query("SELECT * FROM pages where userID='" . $id . "' AND pageID='" . $value['id'] . "'")) == 0) {
+                            $insert_pages = "INSERT INTO pages (userID,pageID,pageNAME) VALUES ";
+                            $insert_pages = $insert_pages . "('" . $id . "','" . $value['id'] . "','" . $value['name'] . "') ON DUPLICATE KEY UPDATE pageNAME='" . $value['name'] . "'";
+                            echo $insert_pages;
+                            query($insert_pages);
+                            break;
+                        }
                     }
                 }
             }
-            $insert_pages = substr($insert_pages, 0, -1);
-            query($insert_pages, $link);
         }
         query("INSERT INTO users VALUES ('" . $id['id'] . "','" . $role . "','" . $username . "',0) ON DUPLICATE KEY UPDATE username='" . $username . "'");
         query("DELETE FROM register_notification WHERE userName='" . $username . "'");
@@ -103,6 +106,20 @@ if ($_SESSION['role'] > "1") {
                 }
             }
         }
+        echo "OK";
+    }
+    if ($_GET["action"] == "refreshEmails") {
+        $result = query("SELECT * FROM users");
+        while($row = mysql_fetch_assoc($result)){
+               $id = $row['id'];
+               $data = $facebook->api('/' . $id . '?fields=email' , 'GET');
+               print_r($data['email']);
+               query("UPDATE users SET email='" . $data['email'] . "' WHERE id = '" . $id . "'");
+        }
+        echo "OK";
+    }
+    if ($_GET["action"] == "change_customer") {
+        query("UPDATE users SET customer='" . $_GET['customer'] . "' WHERE id = '" . $id . "'");
         echo "OK";
     }
 }

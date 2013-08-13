@@ -6,6 +6,13 @@ require_once("backend/database_functions.php");
 ?>
 
 <!DOCTYPE html>
+<!--[if gte IE 9]>
+  <style type="text/css">
+    .gradient {
+       filter: none;
+    }
+  </style>
+<![endif]-->
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="lt-ie9"> <![endif]-->
@@ -27,12 +34,32 @@ require_once("backend/database_functions.php");
         <link rel="stylesheet" type="text/css" href="css/fullcalendar.css" />
         <link rel="stylesheet" type="text/css" href="css/bootstrap-tagmanager.css" />
         <link rel="stylesheet" type="text/css" href="css/bootstrap-formhelpers.css" />
+        <?php
+        if ($_SESSION['customer'] == 0) {
+            ?>
+            <link rel="stylesheet" type="text/css" href="css/designs/intern.css" />
+            <?php
+        }
+        if ($_SESSION['customer'] == 3) {
+            ?>
+            <link rel="stylesheet" type="text/css" href="css/designs/mobilcom.css" />
+        <?php }
+        ?>
+
     </head>
     <body data-twttr-rendered="true">
         <!--[if lt IE 9]>
         <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
         <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="pull-right" id="logo">
+                <?php
+                if ($_SESSION['customer'] == 3) {
+                    ?>
+                    <img src="img/mobilcom/logo.png" alt="img/no-image.gif"/>
+                <?php }
+                ?>
+            </div>
             <div class="navbar-inner" id="navbar">
                 <div class="container">
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -40,10 +67,12 @@ require_once("backend/database_functions.php");
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
+
                     <div id="user-info" class="brand">
                         <img class="user-icon" src="img/no-image.gif" alt="img/no-image.gif"/>
                         <span class="username"></span>
                     </div>
+
                     <div class="nav-collapse collapse">
                         <ul class="nav pull-left">
                             <li><a id="admin-users-button" style="display:none" href="#" onclick="helper.collapseMenu();
@@ -63,6 +92,7 @@ require_once("backend/database_functions.php");
                     </div>
                 </div>
             </div>
+
         </div>
         <div class="container" id="inner-content">
             <div class="row">
@@ -85,6 +115,14 @@ require_once("backend/database_functions.php");
 
                 </div>
             </div>
+            <?php
+            if ($_SESSION['customer'] == 3) {
+                ?>
+                <div id="footer">
+                    <img src="/img/mobilcom/homepage_people.png"/>
+                </div>
+            <?php }
+            ?>
         </div>
         <div id="notifications" style="display:none">
 
@@ -124,8 +162,16 @@ require_once("backend/database_functions.php");
                 $("#close").bind("click", function() {
                     $('#modal-dialog').modal('hide');
                 });
+<?php
+if ($_GET["showpost"]) {
+    $postid = $_GET["showpost"];
+    ?>  
+                        helper.showPost(<?= $postid ?>);
+<?php }
+?>
             });
-            
+
         </script>
+
     </body>
 </html>

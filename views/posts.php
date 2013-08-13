@@ -167,7 +167,7 @@ if ($_SESSION['role'] > 0) {
                 <label class="control-label" for="publish-date">Veröffentlichungsdatum:</label>
                 <div class="controls">
                     <div class="input-append date" id="select-date">
-                        <input data-format="yyyy-dd-MM hh:mm:ss" type="text" id="publish-date" readonly/>
+                        <input data-format="yyyy-MM-dd hh:mm:ss" type="text" id="publish-date" readonly/>
                         <span class="add-on"><i data-time-icon="icon-time" data-date-icon="icon-calendar"></span>
                     </div>
 
