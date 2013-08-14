@@ -70,6 +70,7 @@ if ($role != "0") {
             if ($post_data['url']) {
                 try {
                     $data = $facebook->api('/' . $row['pageID'] . '/photos', 'post', $post_data);
+                    query("UPDATE posts SET facebookPostID='" . $data['id'] . "' WHERE postID ='" . $id . "'");
                 } catch (FacebookApiException $e) {
                     echo $e->getMessage();
                     exit;
@@ -77,7 +78,8 @@ if ($role != "0") {
             } else {
                 $post_url = '/' . $row['pageID'] . '/feed';
                 try {
-                    $facebook->api($post_url, 'post', $post_data);
+                    $data = $facebook->api($post_url, 'post', $post_data);
+                    query("UPDATE posts SET facebookPostID='" . $data['id'] . "' WHERE postID ='" . $id . "'");
                 } catch (FacebookApiException $e) {
                     echo $e->getMessage();
                     exit;
@@ -89,6 +91,7 @@ if ($role != "0") {
     }
     if ($_GET["action"] == "statusPost") {
         query("UPDATE posts SET status='" . mysql_escape_string($_GET["status"]) . "' WHERE postID = '" . $id . "' LIMIT 1");
+        notificate($row['postID'], $notifications["post_status"], $_GET["status"]);
         echo "OK";
         exit;
     }
@@ -114,7 +117,7 @@ if ($_GET["action"] == "addPost") {
             query("INSERT IGNORE INTO posts_on_pages (postID,pageID,userID) VALUES ('" . $row['postID'] . "','" . $pages[$i] . "','" . $user . "')");
         }
     }
-    notificate($row['postID'], $notifications["post_added"], substr($_GET['message'], 0, 10) . "... vom " . $row['lastChanged']);
+    notificate($row['postID'], $notifications["post_added"], $_GET['message']);
     echo "OK";
 }
 
@@ -218,7 +221,7 @@ if ($_GET["action"] == "addComment") {
             ")");
     $result = query("SELECT username FROM users WHERE id=" . $_GET['postID'] . "");
     $row = mysql_fetch_assoc($result);
-    notificate($_GET['postID'], $notifications["comment"], $row['username']);
+    notificate($_GET['postID'], $notifications["comment"], mysql_escape_string($_GET['comment']));
     echo "OK";
 }
 if ($_GET["action"] == "deleteComment") {
@@ -228,11 +231,27 @@ if ($_GET["action"] == "deleteComment") {
 if ($_GET["action"] == "deletePost") {
     $result = query("SELECT *  FROM posts WHERE postID=" . $id);
     $row = mysql_fetch_assoc($result);
+    $facebookPostID = $row['facebookPostID'];
     if ($_SESSION['ID'] == $row['userID']) {
-        notificate($id, $notifications["post_deletet"], substr($row['message'], 0, 10) . "... vom " . $row['lastChanged']);
+        if ($row['status'] == 2) {
+            $my_pages = $facebook->api("/me/accounts");
+            $my_pages = $my_pages["data"];
+            $access_tokens = array();
+            for ($i = 0; $i < sizeof($my_pages); $i++) {
+                $access_tokens[$my_pages[$i]["id"]] = $my_pages[$i]["access_token"];
+            }
+            $result = query("SELECT * FROM posts_on_pages where postID='" . $id . "'");
+            while($row = mysql_fetch_assoc($result)){
+                $facebook->setAccessToken($access_tokens[$row['pageID']]);
+                $splittet = split("_", $facebookPostID);
+                echo $row['pageID']. "_" . $splittet[1];
+                $facebook->api("/" . $splittet[1], "DELETE");
+            }  
+        }
         query("DELETE FROM posts where postID='" . $id . "'");
         query("DELETE FROM posts_on_pages WHERE postID='" . $id . "'");
         query("DELETE FROM comments WHERE postID='" . $id . "'");
+        notificate($id, $notifications["post_deletet"], $row['message']);
         echo "OK";
     }
 }
@@ -279,7 +298,7 @@ if ($_GET["action"] == "updatePost") {
                             ")");
                 }
             }
-            notificate($id, $notifications["post_updated"], substr($row['message'], 0, 10) . "... vom " . $row['lastChanged']);
+            notificate($id, $notifications["post_updated"], $row['message']);
             echo "OK";
             exit;
         }
@@ -391,6 +410,11 @@ function uploadYoutube() {
 }
 
 function notificate($postID, $type, $dataText) {
+    $username = "";
+    $result = query("SELECT username FROM users WHERE id=" . $_SESSION['ID']);
+    $row = mysql_fetch_assoc($result);
+    $actuser = $row['username'];
+
     $result = query("SELECT userID
                 FROM (
                      SELECT DISTINCT userID
@@ -412,24 +436,50 @@ function notificate($postID, $type, $dataText) {
                 $postID . "," .
                 "'" . mysql_real_escape_string($dataText) . "'" .
                 ")");
-        $header = 'From: message@pms.social-media-hosting.com' . "\r\n" .
-                'Reply-To: christoph.heidelmann@akom360.de' . "\r\n" .
+        $result = query("SELECT username FROM users WHERE id=" . $row['userID']);
+        $row = mysql_fetch_assoc($result);
+        $username = $row['username'];
+        $subject = "";
+        $header = 'From: ' . $actuser . '@akom360.de' . "\r\n" .
+                'To: ' . $username . "@facebook.com" . "\r\n" .
                 'X-Mailer: PHP/' . phpversion() . "\r\n" .
                 'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
                 'MIME-Version: 1.0' . "\r\n";
-        $message = '
-        <html>
-        <head>
-          <title>PMS Benachrichtigung</title>
-        </head>
-        <body>' .
-                urlencode($dataText) . "<a href='http://pms.social-media-hosting.com/?showpost=" . $postID . "'>gehe zu</a>"
-                . '</body>
-        </html>
-        ';
-        $result_email = query("SELECT email FROM users where id=" . $row['userID']);
-        $row_email = mysql_fetch_assoc($result_email);
-        mail($row_email['email'], 'PMS Benachrichtigung', $message, $header);
+        $message = "";
+        if ($type == 1) {
+            $message .= "
+                <p><strong>Von: </strong>" . $username . "</p>
+                <p><strong>Text: </strong>" . $dataText . "</p>
+                <a href='http://pms.social-media-hosting.com/?showpost=" . $postID . "'>zum Post</a>";
+            $subject = "Ein Post wurde kommentiert";
+        }
+        if ($type == 3) {
+            $message = "
+                <p><strong>Von: </strong>" . $username . "</p>
+                <p><strong>Text: </strong>" . $dataText . "</p>
+                <a href='http://pms.social-media-hosting.com/?showpost=" . $postID . "'>zum Post</a>";
+            $subject = "Ein neuer Post wurde erstellt";
+        }
+        if ($type == 4) {
+            $message = "
+                <p><strong>Von: </strong>" . $username . "</p>
+                <p><strong>Text: </strong>" . $dataText . "</p>
+                <a href='http://pms.social-media-hosting.com/?showpost=" . $postID . "'>zum Post</a>";
+            $subject = "Ein Post wurde verändert";
+        }
+        if ($type == 2) {
+            $message = "
+                <p><strong>Von: </strong>" . $username . "</p>";
+            $subject = "Post wurde gelöscht!";
+        }
+        if ($type == 5) {
+            $message = "
+                <p><strong>Von: </strong>" . $username . "</p>
+                <p><strong>Neuer Status: </strong>" . $dataText . "</p>
+                <a href='http://pms.social-media-hosting.com/?showpost=" . $postID . "'>zum Post</a>";
+            $subject = "Status von einem Post wurde geändert!";
+        }
+        mail($username . "@facebook.com", $subject, $message, $header);
     }
 }
 

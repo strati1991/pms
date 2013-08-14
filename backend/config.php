@@ -3,17 +3,8 @@
 $config = array();
 $config['appId'] = '192351964261671';
 $config['secret'] = '2c0ce846356ab46e072b68aae2bcc3db';
-if (!$_SESSION['role']) {
-    $result = query("SELECT role FROM users WHERE id =" . $_SESSION['ID']); 
-    $row = mysql_fetch_assoc($result);
-    print_r($row);
-    if ($row['role'] == 0) {
-        $config['scope'] = 'photo_upload,email';
-    } else {
-        $config['scope'] = 'email,publish_stream,manage_pages,user_photos,photo_upload';
-    }
-}
-$config['scope'] = 'email,publish_stream,manage_pages,user_photos,photo_upload';
+$config['scope'] = '';
+$config['scope_manager'] = 'publish_stream,manage_pages,photo_upload';
 $config['fileUpload'] = 'true';
 $errors = array();
 $errors['DATABASE_CON'] = '-1';
@@ -30,6 +21,7 @@ $notifications['comment'] = '1';
 $notifications['post_deletet'] = '2';
 $notifications['post_added'] = '3';
 $notifications["post_updated"] = '4';
+$notifications["post_status"] = '5';
 $status = array();
 $status[0] = "noch nicht angesehen";
 $status[1] = "korrektur";

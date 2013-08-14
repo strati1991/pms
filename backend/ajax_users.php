@@ -14,7 +14,15 @@ $username = $_GET["username"];
 $facebook = new Facebook($config);
 $user = $facebook->getUser();
 $name = $facebook->api("/" . $user . "?fields=username");
-
+if ($_GET["action"] == "getUserRole") {
+        $result = query("Select role FROM users WHERE id = '" . $id . "'");
+        if (mysql_num_rows($result) != 0) {
+            $row = mysql_fetch_assoc($result);
+            echo $row['role'];
+            exit;
+        }
+        echo "-1";
+    }
 //  --------- Root actions ---------
 if ($_SESSION['role'] > "1") {
     if ($_GET["action"] == "changeRole") {
@@ -90,6 +98,7 @@ if ($_SESSION['role'] > "1") {
     }
 
     if ($_GET["action"] == "refresh") {
+        query("DELETE FROM pages where userID='" . $_SESSION['ID'] . "'");
         $sites = $facebook->api('/' . $id . '/accounts', 'GET');
         $sites = $sites['data'];
         foreach ($sites as $value) {
@@ -126,7 +135,7 @@ if ($_SESSION['role'] > "1") {
 //  --------- Root/Community Manager actions ---------
 if ($_SESSION['role'] > "0") {
     if ($_GET["action"] == "showPages") {
-        $result = query("SELECT * FROM pages WHERE userID='" . $id . "'");
+        $result = query("SELECT * FROM pages WHERE userID='" . $id . "' GROUP BY pageName");
         $response = '{ "pages" : [';
         if (mysql_num_rows($result) == 0) {
             echo "{}";

@@ -14,21 +14,20 @@ require_once("backend/config.php");
             cookie: true, // enable cookies to allow the server to access the session
             oauth: true
         });
+        helper.loading();
         FB.getLoginStatus(function(response) {
+            console.log(response);
             if (response.status == 'connected') {
-                var uid = response.authResponse.userID;
                 accessToken = response.authResponse.accessToken;
                 updateUserAndMenu();
                 $('#login-button').hide()
                 $('#logout-button').show();
             } else if (response.status == 'not_authorized') {
                 login();
-                $("#loading-screen").fadeOut();
                 $('#login-button').show()
                 $('#logout-button').hide();
             } else {
                 login();
-                $("#loading-screen").fadeOut();
                 $('#login-button').show()
                 $('#logout-button').hide();
             }
@@ -42,15 +41,29 @@ require_once("backend/config.php");
         document.getElementById('fb-root').appendChild(e);
     }());
 
-
-
-
     function login() {
+        helper.loading();
         FB.login(function(response) {
-            console.log(response);
             if (response.authResponse) {
+                var uid = response.authResponse.userID;
                 accessToken = response.authResponse.accessToken;
-                updateUserAndMenu();
+                helper.loading();
+                $.ajax("/backend/ajax_users.php?action=getUserRole&id=" + uid).done(function(response) {
+                    console.log(response);
+                    if (response != "0") {
+                        FB.login(function(response) {
+                            if (response.authResponse) {
+                                accessToken = response.authResponse.accessToken;
+                                updateUserAndMenu();
+                            } else {
+                                error('User cancelled login or did not fully authorize.');
+                                helper.load("welcome");
+                            }
+                        }, {scope: "<?= $config['scope_manager'] ?>"});
+                    } else {
+                        updateUserAndMenu();
+                    }
+                });
             } else {
                 error('User cancelled login or did not fully authorize.');
                 helper.load("welcome");
@@ -58,6 +71,7 @@ require_once("backend/config.php");
         }, {scope: "<?= $config['scope'] ?>"});
     }
     function updateUserAndMenu() {
+        helper.loading();
         helper.ajaxFAPI("/me?fields=picture.height(24).width(24),name&access_token=" + accessToken, true, function(response) {
             var _response = $.parseJSON(response);
             helper.createSession(function(response) {
@@ -76,7 +90,12 @@ require_once("backend/config.php");
                     $("#user-info").fadeIn();
                     $("#calendar-button").fadeIn();
                     helper.getNotifications();
-                    helper.load("welcome");
+<?php if (!$_GET['showpost']) {
+    ?>
+                        helper.load("welcome");
+<?php }
+?>
+                    helper.finished();
                 });
             });
         });

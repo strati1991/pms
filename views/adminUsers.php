@@ -166,7 +166,7 @@ if ($_SESSION['role'] == "0") {
         <label>folgende Seite zuweisen:</label>
         <select id="multiselect" class="multiselect" multiple="multiple" style="width:400px;height:400px">
             <?php
-            $result = query("SELECT * FROM pages order by pageName");
+            $result = query("SELECT * FROM pages GROUP BY pageName ORDER BY pageName ");
             while ($row = mysql_fetch_assoc($result)) {
                 ?> <option value="<?= $row['pageID'] ?>"><?= $row['pageName'] ?></option>
                 <?php

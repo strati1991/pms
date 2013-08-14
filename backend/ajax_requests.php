@@ -50,7 +50,7 @@ if ($_GET["action"] == "uploadVideo") {
 if ($_GET["action"] == "uploadImage") {
     $image = $_FILES['file'];
     $ending = substr($image['name'], strlen($image['name']) - 4);
-    if (intval($image['size']) > 100000) {
+    if (intval($image['size']) > 400000) {
         echo '{' .
         '"error":' . '"' . $errors['IMAGE_TO_LARGE'] . '"' .
         '}';
@@ -64,13 +64,13 @@ if ($_GET["action"] == "uploadImage") {
         unlink($image['tmp_name']);
         exit;
     }
-    $path = "../img/uploads/" . time() . "_" . basename($image['name']);
+    $path = "../img/uploads/" . time() . "_" . preg_replace("/[äöü<>: \\\/*?!-]/","_",basename($image['name']));
     move_uploaded_file($image['tmp_name'], $path);
     echo '{"files": [' .
     '{' .
-    '"name": "' . $image['name'] . '",' .
-    '"size": ' . $image['size'] . ',' .
-    '"url":' . '"' . substr($path, 3) . '"' .
+        '"name": "' . $image['name'] . '",' .
+        '"size": ' . $image['size'] . ',' .
+        '"url":' . '"' . substr($path, 3) . '"' .
     '}' .
     ']}';
 }

@@ -53,7 +53,7 @@ if ($_SESSION['role'] > 0) {
                     </div>
 
                 </td>
-                <td><?= $row['username'] ?></td>
+                <td><a target="_blank" href="https://facebook.com/<?= $row['username'] ?>"><?= $row['username'] ?></a></td>
                 <td class="hidable" id="message_<?= $row['postID'] ?>"><?= substr($row['message'], 0, 20) . "..." ?></td>
                 <td class="hidable" id="date_<?= $row['postID'] ?>"><?= $row['lastChanged'] ?></td>
                 <?php
@@ -67,11 +67,19 @@ if ($_SESSION['role'] > 0) {
                 }
                 ?>
                 <td class="<?= $style ?>"  id="status_<?= $row['postID'] ?>" data-status="<?= $row['status'] ?>">
-                    <span><?= $status[$row['status']] ?></span>
+                    <span><?= $status[$row['status']] ?>
+                    <?php
+                        if($row['status'] == 2 && $row['facebookPostID'] != 0){
+                            ?>
+                        <a href="https://facebook.com/<?= $row['facebookPostID'] ?>" target="_blank" ><button title="Zu dem Post auf Facebook springen" class="btn has-tooltip-bottom" ><i class="icon-share-alt icosn-white"></i></button></a>
+                        <?php
+                        }
+                    ?>
+                    </span>
                 </td>
                 <td id="start_<?= $row['postID'] ?>"><?= $row['startTime'] ?></td>
                 <td>
-                    <button title="Seiten anzeigen auf denen der Post erscheinen wird" class="btn has-tooltip-bottom" class="popover-pages" data-original-title="Seiten:" id="popover-pages-<?= $row['postID'] ?>" data-toggle="popover-pages-<?= $row['postID'] ?>" onclick="posts.popoverPagesToggle(<?= $row['postID'] ?>);"><i class="icon-list icosn-white"></i></button>
+                    <button title="Seiten anzeigen auf denen der Post erscheinen wird" class="btn has-tooltip-bottom popover-pages" data-original-title="Seiten:" id="popover-pages-<?= $row['postID'] ?>" data-toggle="popover-pages-<?= $row['postID'] ?>" onclick="posts.popoverPagesToggle(<?= $row['postID'] ?>);"><i class="icon-list icosn-white"></i></button>
                 </td>
             </tr>
             <?php
