@@ -5,11 +5,10 @@ error_reporting(E_all || E_STRICT);
 require_once("../facebook-sdk/facebook.php");
 require_once("../backend/database_functions.php");
 require_once("../backend/config.php");
-
 session_start();
 
 $id = $_GET["id"];
-$role = $_GET["role"];
+$role = $_SESSION["role"];
 
 $facebook = new Facebook($config);
 $user = $facebook->getUser();
@@ -153,6 +152,7 @@ if ($_GET["action"] == "getPostByID") {
     echo $get;
 }
 if ($_GET["action"] == "getPostOnPages") {
+    $sql = 
     $result = query("SELECT DISTINCT posts_on_pages.*,pages.pageName " .
             "FROM posts_on_pages " .
             "join pages on " .
@@ -232,8 +232,8 @@ if ($_GET["action"] == "deletePost") {
     $result = query("SELECT *  FROM posts WHERE postID=" . $id);
     $row = mysql_fetch_assoc($result);
     $facebookPostID = $row['facebookPostID'];
-    if ($_SESSION['ID'] == $row['userID']) {
-        if ($row['status'] == 2) {
+    if ($_SESSION['ID'] == $row['userID'] || $role > 0) {
+        /*if ($row['status'] == 2) {
             $my_pages = $facebook->api("/me/accounts");
             $my_pages = $my_pages["data"];
             $access_tokens = array();
@@ -247,7 +247,7 @@ if ($_GET["action"] == "deletePost") {
                 echo $row['pageID']. "_" . $splittet[1];
                 $facebook->api("/" . $splittet[1], "DELETE");
             }  
-        }
+        }*/
         query("DELETE FROM posts where postID='" . $id . "'");
         query("DELETE FROM posts_on_pages WHERE postID='" . $id . "'");
         query("DELETE FROM comments WHERE postID='" . $id . "'");
@@ -337,7 +337,6 @@ if ($_GET["action"] == "getVideoData") {
 }
 
 function initYoutube() {
-
     // Holt den Anfragetoken
     $developerKey = "AI39si6x4grcCzTFYVWsrgufBWrgxd6TsR_XZEw8sxhl8bUNmbUh-wBzwKUjmX6L8eHmNfxUfDS8Vp_BbEAD6XVH0oIa4IBzLw";
     $clientId = "PMS APP";
@@ -440,7 +439,7 @@ function notificate($postID, $type, $dataText) {
         $row = mysql_fetch_assoc($result);
         $username = $row['username'];
         $subject = "";
-        $header = 'From: ' . $actuser . '@akom360.de' . "\r\n" .
+        $header = 'From: ' . $actuser . '@facebook.com' . "\r\n" .
                 'To: ' . $username . "@facebook.com" . "\r\n" .
                 'X-Mailer: PHP/' . phpversion() . "\r\n" .
                 'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
@@ -479,6 +478,9 @@ function notificate($postID, $type, $dataText) {
                 <a href='http://pms.social-media-hosting.com/?showpost=" . $postID . "'>zum Post</a>";
             $subject = "Status von einem Post wurde geändert!";
         }
+        require_once('KLogger.php');
+        $log = new KLogger ( "log.txt" , KLogger::DEBUG );
+        $log->LogInfo("Email from:" . $actuser . '@facebook.com' . " to: " . $username . "@facebook.com");
         mail($username . "@facebook.com", $subject, $message, $header);
     }
 }

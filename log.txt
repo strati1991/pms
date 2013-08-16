@@ -1,0 +1,2 @@
+2013-08-16 10:20:52 - ERROR --> An exception was thrown in ThisFunction() 
+2013-08-16 10:20:52 - INFO  --> Internal Query Time:  milliseconds 

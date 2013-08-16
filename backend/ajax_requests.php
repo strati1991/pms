@@ -6,11 +6,10 @@ require_once("../facebook-sdk/facebook.php");
 require_once("../backend/database_functions.php");
 require_once("../backend/config.php");
 
-
 session_start();
 
 $id = $_GET["id"];
-$role = $_GET["role"];
+$role = $_SESSION["role"];
 $username = $_GET["username"];
 
 $facebook = new Facebook($config);
@@ -50,7 +49,7 @@ if ($_GET["action"] == "uploadVideo") {
 if ($_GET["action"] == "uploadImage") {
     $image = $_FILES['file'];
     $ending = substr($image['name'], strlen($image['name']) - 4);
-    if (intval($image['size']) > 400000) {
+    if (intval($image['size']) > 1000000) {
         echo '{' .
         '"error":' . '"' . $errors['IMAGE_TO_LARGE'] . '"' .
         '}';

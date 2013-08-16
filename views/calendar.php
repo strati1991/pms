@@ -38,7 +38,7 @@ while ($row = mysql_fetch_array($posts)) {
     }
     echo '"status" : "' . $row['status'] . '",';
     echo '"ID" : "' . $row['postID'] . '",';
-    echo '"title" : "' . $row['message'] . '", ';
+    echo '"title" : "' . str_replace("+"," ", urlencode($row['message'])) . '", ';
     echo '"className" : "' . $style . '", ';
     echo '"color" : "' . $color . '", ';
     echo '"allDay" : false ';

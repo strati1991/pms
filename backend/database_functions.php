@@ -5,15 +5,21 @@ error_reporting(E_all || E_STRICT);
 require_once("config.php");
 
 function query($query) {
+    require_once('KLogger.php');
+    $log = new KLogger ( "log.txt" , KLogger::DEBUG );
+    $log->LogWarn("Datenbank Abfrage: " . $query);
     $link = mysql_connect('db3473.mydbserver.com', 'p158169d31', 'x2$d76b!x#');
     if (!$link) {
+        //log->LogError("Keine Datenbankserververbindung");
         echo $errors['DATABASE_CON'];
         exit;
     }
     if (!mysql_select_db('usr_p158169_51', $link)) {
+        //$log->LogError("Keine Datenbankverbindung");
         echo $errors['DATABASE_CON'];
         exit;
     }
+    
     return mysql_query($query);
 }
 

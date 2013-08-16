@@ -15,14 +15,14 @@ $facebook = new Facebook($config);
 $user = $facebook->getUser();
 $name = $facebook->api("/" . $user . "?fields=username");
 if ($_GET["action"] == "getUserRole") {
-        $result = query("Select role FROM users WHERE id = '" . $id . "'");
-        if (mysql_num_rows($result) != 0) {
-            $row = mysql_fetch_assoc($result);
-            echo $row['role'];
-            exit;
-        }
-        echo "-1";
+    $result = query("Select role FROM users WHERE id = '" . $id . "'");
+    if (mysql_num_rows($result) != 0) {
+        $row = mysql_fetch_assoc($result);
+        echo $row['role'];
+        exit;
     }
+    echo "-1";
+}
 //  --------- Root actions ---------
 if ($_SESSION['role'] > "1") {
     if ($_GET["action"] == "changeRole") {

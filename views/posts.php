@@ -66,7 +66,7 @@ if ($_SESSION['role'] > 0) {
                     $style = "label label-success";
                 }
                 ?>
-                <td class="<?= $style ?>"  id="status_<?= $row['postID'] ?>" data-status="<?= $row['status'] ?>">
+                <td class="<?= $style ?> status"  id="status_<?= $row['postID'] ?>" data-status="<?= $row['status'] ?>">
                     <span><?= $status[$row['status']] ?>
                     <?php
                         if($row['status'] == 2 && $row['facebookPostID'] != 0){
@@ -159,7 +159,7 @@ if ($_SESSION['role'] > 0) {
             </div>
             <div style="display:none" id="alert-image-to-large-dialog" class="alert alert-block alert-error">
                 <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
-                Dein Bild ist zu groß es darf höchstens 100kb groß sein!
+                Dein Bild ist zu groß es darf höchstens 1MB groß sein!
             </div>
             <div style="display:none" id="alert-image-wrong-type-dialog" class="alert alert-block alert-error">
                 <button type="button" class="close" onclick="$(this).parent().hide()">x</button>
